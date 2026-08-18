@@ -1,0 +1,23 @@
+global:
+  output_dir: benchmarks/results/full_suite_smoke
+  data_root: benchmarks/data
+  download: false
+  permutations: 20
+  seeds: [0]
+
+gaussian_1d:
+  enabled: true
+  n_samples: 24
+  deviations: [mean_shift]
+  severities: [0.0, 0.5, 1.0]
+
+vision:
+  enabled: true
+  datasets: [gaussian2x2]
+  test_cases: [class_split]
+  n_samples: 24
+  runs: 1
+  severities: [0.0, 0.2, 0.4]
+  class_pairs:
+    - [0, 1]
+  gaussian_mode: mixed

@@ -1,0 +1,24 @@
+global:
+  output_dir: benchmarks/results/full_suite
+  data_root: benchmarks/data
+  download: false
+  permutations: 200
+  seeds: [0, 1, 2]
+
+gaussian_1d:
+  enabled: true
+  n_samples: 100
+  deviations: [mean_shift, scale_shift, bimodal, contamination]
+  severities: [0.0, 0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0]
+
+vision:
+  enabled: true
+  datasets: [gaussian2x2, mnist, cifar10]
+  test_cases: [class_split, pair_blend]
+  n_samples: 512
+  runs: 3
+  severities: [0.0, 0.1, 0.2, 0.3, 0.4, 0.5]
+  class_pairs:
+    - [0, 1]
+    - [3, 8]
+  gaussian_mode: mixed

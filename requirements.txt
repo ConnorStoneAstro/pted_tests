@@ -1,0 +1,9 @@
+pted
+pqm
+git+https://github.com/marcojira/fld.git
+numpy
+imageio
+pyyaml
+torch
+torchvision
+score_models
