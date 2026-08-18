@@ -13,6 +13,8 @@ from pqm import pqm_pvalue
 
 from .datasets.gaussian import project_to_first_pc
 
+DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
 
 def _prepare_samples(values: np.ndarray) -> np.ndarray:
     values = np.asarray(values)
@@ -103,7 +105,13 @@ def pted_two_sample_pvalue(
     permutations: int,
     rng: np.random.Generator,
 ) -> float:
-    return float(pted(torch.tensor(x), torch.tensor(y), permutations=permutations))
+    return float(
+        pted(
+            torch.tensor(x, device=DEVICE),
+            torch.tensor(y, device=DEVICE),
+            permutations=permutations,
+        )
+    )
 
 
 def pted_two_sample_pvalue_onetail(
@@ -113,7 +121,12 @@ def pted_two_sample_pvalue_onetail(
     rng: np.random.Generator,
 ) -> float:
     return float(
-        pted(torch.tensor(x), torch.tensor(y), two_tailed=False, permutations=permutations)
+        pted(
+            torch.tensor(x, device=DEVICE),
+            torch.tensor(y, device=DEVICE),
+            two_tailed=False,
+            permutations=permutations,
+        )
     )
 
 
@@ -134,8 +147,8 @@ def pqm_mean_chi2_and_pvalue(
     safe_num_refs = min(int(100), max(4, min_samples - 3))
 
     pqm_values = pqm_pvalue(
-        torch.tensor(x),
-        torch.tensor(y),
+        torch.tensor(x, device=DEVICE),
+        torch.tensor(y, device=DEVICE),
         num_refs=safe_num_refs,
         re_tessellation=permutations,
     )
