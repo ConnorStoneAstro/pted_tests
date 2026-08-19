@@ -37,7 +37,14 @@ def ks_pc1_pvalue(
 
 def _as_cov_matrix(values: np.ndarray) -> np.ndarray:
     values = _prepare_samples(values)
-    covariance = np.cov(values, rowvar=False, bias=False)
+    covariance = (
+        torch.cov(
+            torch.tensor(values, dtype=torch.float32, device=DEVICE), rowvar=False, bias=False
+        )
+        .detach()
+        .cpu()
+        .numpy()
+    )
     return np.atleast_2d(covariance)
 
 
