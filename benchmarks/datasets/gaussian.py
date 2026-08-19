@@ -2,6 +2,9 @@ from __future__ import annotations
 
 import numpy as np
 from ..utils import TwoSampleProblem
+import torch
+
+DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
 def project_to_first_pc(x: np.ndarray, y: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
@@ -11,14 +14,16 @@ def project_to_first_pc(x: np.ndarray, y: np.ndarray) -> tuple[np.ndarray, np.nd
         x = x.reshape(x.shape[0], -1)
     if y.ndim > 2:
         y = y.reshape(y.shape[0], -1)
-    z = np.concatenate([x, y], axis=0)
+    x = torch.as_tensor(x, dtype=torch.float32, device=DEVICE)
+    y = torch.as_tensor(y, dtype=torch.float32, device=DEVICE)
+    z = torch.cat([x, y], dim=0)
     mean = z.mean(axis=0, keepdims=True)
     centered = z - mean
-    _, _, vt = np.linalg.svd(centered, full_matrices=False)
+    _, _, vt = torch.linalg.svd(centered, full_matrices=False)
     pc1 = vt[0]
     x1 = (x - mean) @ pc1
     y1 = (y - mean) @ pc1
-    return x1, y1
+    return x1.detach().cpu().numpy(), y1.detach().cpu().numpy()
 
 
 def generate_gaussian_problem(
