@@ -35,19 +35,6 @@ def ks_pc1_pvalue(
     return float(ks_2samp(np.asarray(x1).ravel(), np.asarray(y1).ravel()).pvalue)
 
 
-def _as_cov_matrix(values: np.ndarray) -> np.ndarray:
-    values = _prepare_samples(values)
-    covariance = (
-        torch.cov(
-            torch.tensor(values, dtype=torch.float32, device=DEVICE), rowvar=False, bias=False
-        )
-        .detach()
-        .cpu()
-        .numpy()
-    )
-    return np.atleast_2d(covariance)
-
-
 def _split_baseline_samples(
     x: np.ndarray, rng: np.random.Generator
 ) -> tuple[np.ndarray, np.ndarray]:
@@ -83,6 +70,14 @@ def fld_two_sample_score(
     return fld_score(x, y, rng=rng)
 
 
+def _as_cov_matrix(values: np.ndarray) -> np.ndarray:
+    values = _prepare_samples(values)
+    covariance = torch.cov(
+        torch.tensor(values, dtype=torch.float32, device=DEVICE), rowvar=False, bias=False
+    )
+    return covariance
+
+
 def fid_score(x: np.ndarray, y: np.ndarray) -> float:
     x = _prepare_samples(x)
     y = _prepare_samples(y)
@@ -90,10 +85,12 @@ def fid_score(x: np.ndarray, y: np.ndarray) -> float:
     my = y.mean(axis=0)
     sx = _as_cov_matrix(x)
     sy = _as_cov_matrix(y)
-    cov_prod = sqrtm(sx @ sy)
+    cov_prod = sqrtm((sx @ sy).detach().cpu().numpy())
     if np.iscomplexobj(cov_prod):
         cov_prod = cov_prod.real
-    score = np.sum((mx - my) ** 2) + np.trace(sx + sy - 2.0 * cov_prod)
+    score = np.sum((mx - my) ** 2) + np.trace(
+        sx.detach().cpu().numpy() + sy.detach().cpu().numpy() - 2.0 * cov_prod
+    )
     return float(np.real(score))
 
 
