@@ -54,10 +54,14 @@ def plot_sweep_summary(output_dir: Path, sigma_values: np.ndarray, pvalues: np.n
     ax.scatter(sigma_values[[0, -1]], pvalues[[0, -1]], color="tab:blue", s=18)
     hdp_pvalue = np.load(output_dir / "pvalues_hdp.npy")
     ax.plot(
-        sigma_values, hdp_pvalue, color="tab:green", linewidth=2.5, label="HDP coverage p-value"
+        sigma_values, hdp_pvalue, color="tab:green", linewidth=2.5, label="HPD coverage p-value"
     )
     ax.scatter(sigma_values[[0, -1]], hdp_pvalue[[0, -1]], color="tab:green", s=18)
-    # mira_pvalue = np.load(output_dir / "pvalues_mira.npy")
+    mira_pvalue = np.load(output_dir / "pvalues_mira.npy")
+    stdband = np.sqrt((1 / 18) / 64)
+    mira_bounds = np.interp([2 / 3 - stdband, 2 / 3 + stdband], mira_pvalue, sigma_values)
+    ax.axvline(mira_bounds[0], linestyle=":", color="tab:red", alpha=0.65, label="MIRA window")
+    ax.axvline(mira_bounds[1], linestyle=":", color="tab:red", alpha=0.65)
     # ax_mira = ax.twinx()
     # (line_mira,) = ax_mira.plot(
     #     sigma_values,
@@ -69,7 +73,6 @@ def plot_sweep_summary(output_dir: Path, sigma_values: np.ndarray, pvalues: np.n
     # ax_mira.set_ylabel("MIRA score", color="tab:red")
     # ax_mira.tick_params(axis="y", colors="tab:red")
     # ax_mira.axhline(2 / 3, linestyle=":", color="tab:red", alpha=0.65, label="2/3 threshold")
-    # varband = (1 / 18) / 64
     # ax_mira.axhline(
     #     2 / 3 - np.sqrt(varband), linestyle=":", color="tab:grey", alpha=0.65, label="MIRA window"
     # )
