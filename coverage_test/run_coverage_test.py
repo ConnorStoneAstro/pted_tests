@@ -56,16 +56,19 @@ def run_coverage_sweep(args: argparse.Namespace) -> dict[str, Any]:
     pvalues_pted = np.zeros(len(sigma_values), dtype=np.float64)
     pvalues_mira = np.zeros(len(sigma_values), dtype=np.float64)
     pvalues_hdp = np.zeros(len(sigma_values), dtype=np.float64)
+    pvalues_ks = np.zeros(len(sigma_values), dtype=np.float64)
     for i, sigma in enumerate(sigma_values):
         scaled_posterior_samples = (
             posterior_samples - data_values[None, :, :]
         ) * sigma + data_values[None, :, :]
+        # PTED
         torch.manual_seed(42)
         pvalues_pted[i] = pted_coverage_test(
             torch.tensor(ground_truth),
             torch.tensor(scaled_posterior_samples),
             permutations=args.permutations,
         )
+        # MIRA
         torch.manual_seed(42)
         pvalues_mira[i] = mira(
             torch.tensor(ground_truth),
@@ -73,6 +76,7 @@ def run_coverage_sweep(args: argparse.Namespace) -> dict[str, Any]:
             num_runs=args.permutations,
             norm=True,
         )[0]
+        # HDP
         chi2_hdp = 0
         for gt, dv, dc, sps in zip(
             ground_truth, data_values, data_cov, np.moveaxis(scaled_posterior_samples, 0, 1)
@@ -85,9 +89,20 @@ def run_coverage_sweep(args: argparse.Namespace) -> dict[str, Any]:
                 (np.sum(sps_density >= gt_density[None], axis=0) + 1) / (sps.shape[0] + 1)
             )
         pvalues_hdp[i] = utils.two_tailed_p(chi2_hdp, 2 * args.n_sims)
+        # KS
+        pvals_ks = np.array(
+            [
+                scipy.stats.kstest(s, g)[1]
+                for g, s in zip(
+                    np.sum(ground_truth, axis=1), np.sum(scaled_posterior_samples, axis=1)
+                )
+            ]
+        )
+        pvalues_ks[i] = utils.two_tailed_p(-2 * np.sum(np.log(pvals_ks + 1e-10)), 2 * args.n_sims)
     np.save(output_dir / "pvalues_pted.npy", pvalues_pted)
     np.save(output_dir / "pvalues_mira.npy", pvalues_mira)
     np.save(output_dir / "pvalues_hdp.npy", pvalues_hdp)
+    np.save(output_dir / "pvalues_ks.npy", pvalues_ks)
     np.save(output_dir / "sigma_values.npy", sigma_values)
     np.save(output_dir / "ground_truth.npy", ground_truth)
     np.save(output_dir / "data_values.npy", data_values)

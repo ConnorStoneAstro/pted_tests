@@ -52,6 +52,8 @@ def _split_baseline_samples(
 def fld_score(x: np.ndarray, y: np.ndarray, rng: np.random.Generator) -> float:
     x = _prepare_samples(x)
     y = _prepare_samples(y)
+    x = x + np.random.normal(loc=0.0, scale=1e-9, size=x.shape)
+    y = y + np.random.normal(loc=0.0, scale=1e-9, size=y.shape)
     train_x, test_x = _split_baseline_samples(x, rng=rng)
 
     train_feat = torch.as_tensor(train_x, dtype=torch.float32)
