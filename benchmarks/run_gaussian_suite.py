@@ -54,6 +54,7 @@ def _plot_gaussian_outputs(records: list[dict[str, object]], out_dir: Path) -> N
         "mean_shift": "$y \\sim \\mathcal{N}({\\rm S}, 1)$",
         "scale_shift": "$y \\sim \\mathcal{N}(0, (1 + {\\rm S})^2)$",
         "bimodal": "$y \\sim 0.5 \\mathcal{N}(-{\\rm S}, 1) + 0.5 \\mathcal{N}({\\rm S}, 1)$",
+        "skew": "$y \\sim \\text{SkewNormal}(0, 1, {\\rm S})$",
         "contamination": "$y \\sim (1 - {\\rm S}) \\mathcal{N}(0, 1) + {\\rm S} \\mathcal{N}(4, 1)$",
     }
     for deviation in deviations:

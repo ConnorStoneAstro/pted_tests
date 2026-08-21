@@ -1,6 +1,6 @@
 import numpy as np
 
-DEVIATION_KINDS = ["mean_shift", "scale_shift", "bimodal", "contamination"]
+DEVIATION_KINDS = ["mean_shift", "scale_shift", "bimodal", "skew", "contamination"]
 
 CONFIG = {
     "output_dir": "benchmarks/results/gaussian_suite_onetail",

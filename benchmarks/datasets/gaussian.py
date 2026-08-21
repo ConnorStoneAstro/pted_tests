@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import numpy as np
+from scipy.stats import skewnorm
 from ..utils import TwoSampleProblem
 import torch
 
@@ -43,6 +44,8 @@ def generate_gaussian_problem(
         y = rng.normal(size=(n_samples, 1))
         y[mix, 0] -= severity
         y[~mix, 0] += severity
+    elif deviation == "skew":
+        y = skewnorm.rvs(a=severity, size=(n_samples, 1), random_state=rng)
     elif deviation == "contamination":
         y = rng.normal(size=(n_samples, 1))
         contam = rng.uniform(size=n_samples) < severity

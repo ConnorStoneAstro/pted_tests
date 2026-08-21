@@ -18,6 +18,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.cm import ScalarMappable
 from matplotlib.colors import Normalize
+from scipy.stats import skewnorm
 
 if __package__ in (None, ""):
     sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
@@ -32,6 +33,7 @@ GAUSSIAN_TITLES = {
     "mean_shift": "$y \\sim \\mathcal{N}({\\rm S}, 1)$",
     "scale_shift": "$y \\sim \\mathcal{N}(0, (1 + {\\rm S})^2)$",
     "bimodal": "$y \\sim 0.5 \\mathcal{N}(-{\\rm S}, 1) + 0.5 \\mathcal{N}({\\rm S}, 1)$",
+    "skew": "$y \\sim {\\rm SkewNormal}({\\rm S})$",
     "contamination": "$y \\sim (1 - {\\rm S}) \\mathcal{N}(0, 1) + {\\rm S} \\mathcal{N}(4, 1)$",
 }
 VISION_TITLES = {
@@ -57,6 +59,8 @@ def _gaussian_density(grid: np.ndarray, deviation: str, severity: float) -> np.n
         return _normal_pdf(grid, 0.0, 1.0 + severity)
     if deviation == "bimodal":
         return 0.5 * _normal_pdf(grid, -severity, 1.0) + 0.5 * _normal_pdf(grid, severity, 1.0)
+    if deviation == "skew":
+        return skewnorm.pdf(grid, a=severity)
     if deviation == "contamination":
         return (1.0 - severity) * _normal_pdf(grid, 0.0, 1.0) + severity * _normal_pdf(
             grid, 4.0, 1.0
