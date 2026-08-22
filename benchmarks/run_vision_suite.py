@@ -118,6 +118,14 @@ def build_arg_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Print merged configuration and exit",
     )
+    parser.add_argument(
+        "--records-csv",
+        default=None,
+        help=(
+            "Path to an existing vision records CSV. "
+            "Defaults to <output_dir>/vision/vision_suite_records.csv"
+        ),
+    )
     return parser
 
 
