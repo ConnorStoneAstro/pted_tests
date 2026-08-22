@@ -14,6 +14,7 @@ from benchmarks.metrics import metric_sweep, pted_two_sample_pvalue_onetail
 from benchmarks.plots import plot_method_sweep
 from benchmarks.runners.vision import run_vision_sweep
 from utils import _grab_config, _annotate
+from benchmarks.run_gaussian_suite import _read_records_csv
 
 
 def _write_records_csv(records: list[dict[str, object]], path: Path) -> None:
@@ -108,6 +109,11 @@ def build_arg_parser() -> argparse.ArgumentParser:
         help="Python configuration file path",
     )
     parser.add_argument(
+        "--plot-only",
+        action="store_true",
+        help="Skip experiments and regenerate plots from an existing records CSV",
+    )
+    parser.add_argument(
         "--dry-run",
         action="store_true",
         help="Print merged configuration and exit",
@@ -119,6 +125,15 @@ def main() -> None:
     parser = build_arg_parser()
     args = parser.parse_args()
     config = _grab_config(args.config)
+    if args.plot_only:
+        output_dir = Path(config["output_dir"])
+        vision_out = output_dir / "vision"
+        default_csv = vision_out / "vision_suite_records.csv"
+        csv_path = Path(args.records_csv) if args.records_csv else default_csv
+        records = _read_records_csv(csv_path)
+        _plot_vision_outputs(records, vision_out)
+        print(f"Regenerated plots from: {csv_path}")
+        return
     run_suite(config, dry_run=args.dry_run)
 
 

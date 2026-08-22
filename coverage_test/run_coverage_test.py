@@ -92,9 +92,10 @@ def run_coverage_sweep(args: argparse.Namespace) -> dict[str, Any]:
         # KS
         pvals_ks = np.array(
             [
-                scipy.stats.kstest(s, g)[1]
+                scipy.stats.kstest(g, s)[1]
                 for g, s in zip(
-                    np.sum(ground_truth, axis=1), np.sum(scaled_posterior_samples, axis=1)
+                    np.sum(ground_truth, axis=1),
+                    np.moveaxis(np.sum(scaled_posterior_samples, axis=-1), 1, 0),
                 )
             ]
         )
