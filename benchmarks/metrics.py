@@ -17,7 +17,7 @@ DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
 def _prepare_samples(values: np.ndarray) -> np.ndarray:
-    values = np.asarray(values, dtype=np.float32)
+    values = np.asarray(values, dtype=np.float64)
     if values.ndim == 1:
         return values[:, None]
     if values.ndim > 2:
@@ -74,7 +74,7 @@ def fld_two_sample_score(
 
 def _as_cov_matrix(values: np.ndarray) -> np.ndarray:
     values = _prepare_samples(values)
-    covariance = torch.cov(torch.as_tensor(values, dtype=torch.float32, device=DEVICE))
+    covariance = torch.cov(torch.as_tensor(values, dtype=torch.float64, device=DEVICE))
     return covariance
 
 
