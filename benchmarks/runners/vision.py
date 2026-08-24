@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Callable, Iterable
 
 import numpy as np
+from sklearn import metrics
 
 from ..datasets.vision import generate_vision_problem, load_vision_dataset
 from ..metrics import metric_sweep
@@ -53,4 +54,14 @@ def run_vision_sweep(
                             }
                         )
                     records.extend(sub_record)
+        for metric in metrics.keys():
+            subset = [
+                record
+                for record in records
+                if ((record["method"] == metric) and (record["dataset"] == dataset_name))
+            ]
+            print(
+                f"Metric: {metric} avg runtime: {sum(record['runtime'] for record in subset)/len(subset):.4e} seconds"
+            )
+
     return records
