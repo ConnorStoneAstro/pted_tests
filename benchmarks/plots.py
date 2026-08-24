@@ -76,7 +76,7 @@ def plot_method_sweep(
     for metric in metric_sweep().keys():
         subset = [record for record in records if record["method"] == metric]
         print(
-            f"Metric: {metric} avg runtime: {sum(record['runtime'] for record in subset)/len(subset):.4e} seconds"
+            f"Metric: {metric} avg runtime: {sum(record.get('runtime', 0) for record in subset)/len(subset):.4e} seconds"
         )
 
     grouped = _group_records(records, x_key=x_key, y_key=y_key)
