@@ -50,8 +50,7 @@ def _group_records(
         if y_key not in record:
             continue
         score = float(record[y_key])
-        if np.isfinite(score):
-            grouped[method][x_value].append(score)
+        grouped[method][x_value].append(score)
     for method in grouped:
         grouped[method] = (
             np.sort(list(grouped[method].keys())),
@@ -90,10 +89,12 @@ def plot_method_sweep(
     count_extra = 0
     lines = []
     for i, method in enumerate(methods):
+        print(method)
+        print(np.sum(np.isfinite(grouped[method][1]), axis=1))
         x_values = grouped[method][0]
-        medians = np.median(grouped[method][1], axis=1)
-        lowers = np.quantile(grouped[method][1], lower_quantile, axis=1)
-        uppers = np.quantile(grouped[method][1], upper_quantile, axis=1)
+        medians = np.nanmedian(grouped[method][1], axis=1)
+        lowers = np.nanquantile(grouped[method][1], lower_quantile, axis=1)
+        uppers = np.nanquantile(grouped[method][1], upper_quantile, axis=1)
         linewidth = _progressive_linewidth(
             i, total_methods, max_width=max_linewidth, min_width=min_linewidth
         )
