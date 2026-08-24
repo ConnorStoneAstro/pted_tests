@@ -17,7 +17,9 @@ def run_gaussian_sweep(
 ) -> list[dict[str, float | int | str | None]]:
     records: list[dict[str, float | int | str | None]] = []
     for deviation in deviations:
+        print("deviation:", deviation)
         for severity in severities:
+            print("severity:", severity)
             for seed in seeds:
                 rng = np.random.default_rng(seed)
                 problem = generate_gaussian_problem(
@@ -28,6 +30,7 @@ def run_gaussian_sweep(
                 )
                 sub_record = []
                 for name, metric in metrics.items():
+                    print("metric:", name)
                     value = metric(problem.x, problem.y, permutations=permutations, rng=rng)
                     sub_record.append(
                         {
