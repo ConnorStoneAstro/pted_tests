@@ -5,6 +5,7 @@ from typing import Iterable, Callable
 from ..datasets.gaussian import generate_gaussian_problem
 from ..metrics import metric_sweep
 import numpy as np
+from time import process_time
 
 
 def run_gaussian_sweep(
@@ -31,7 +32,9 @@ def run_gaussian_sweep(
                 sub_record = []
                 for name, metric in metrics.items():
                     print("metric:", name)
+                    start = process_time()
                     value = metric(problem.x, problem.y, permutations=permutations, rng=rng)
+                    runtime = process_time() - start
                     sub_record.append(
                         {
                             "method": name,
@@ -39,6 +42,7 @@ def run_gaussian_sweep(
                             "deviation": deviation,
                             "seed": seed,
                             "score": value,
+                            "runtime": runtime,
                         }
                     )
                 records.extend(sub_record)
