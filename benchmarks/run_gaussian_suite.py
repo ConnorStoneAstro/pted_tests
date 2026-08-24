@@ -58,6 +58,7 @@ def _plot_gaussian_outputs(records: list[dict[str, object]], out_dir: Path) -> N
         "contamination": "$y \\sim (1 - {\\rm S}) \\mathcal{N}(0, 1) + {\\rm S} \\mathcal{N}(4, 1)$",
     }
     for deviation in deviations:
+        print(f"Plotting gaussian outputs for deviation: {deviation}")
         subset = [record for record in records if str(record["deviation"]) == deviation]
         plot_method_sweep(
             subset,

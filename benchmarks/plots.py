@@ -11,6 +11,7 @@ matplotlib.use("Agg")
 
 import matplotlib.pyplot as plt
 import numpy as np
+from benchmarks.metrics import metric_sweep
 
 METHOD_COLOURS = {
     "pted": "tab:blue",
@@ -73,6 +74,11 @@ def plot_method_sweep(
     max_linewidth: float = 2.6,
     min_linewidth: float = 1.1,
 ):
+    for metric in metric_sweep().keys():
+        subset = [record for record in records if record["method"] == metric]
+        print(
+            f"Metric: {metric} avg runtime: {sum(record['runtime'] for record in subset)/len(subset):.4e} seconds"
+        )
 
     grouped = _group_records(records, x_key=x_key, y_key=y_key)
     methods = list(reversed(sorted(grouped)))

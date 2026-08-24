@@ -3,7 +3,6 @@ from __future__ import annotations
 from typing import Callable, Iterable
 
 import numpy as np
-from sklearn import metrics
 
 from ..datasets.vision import generate_vision_problem, load_vision_dataset
 from ..metrics import metric_sweep

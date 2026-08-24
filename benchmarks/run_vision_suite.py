@@ -49,7 +49,9 @@ def _plot_vision_outputs(records: list[dict[str, object]], out_dir: Path) -> Non
         "gaussian2x2": "Gaussian 2x2",
     }
     for dataset in datasets:
+        print(f"Plotting vision outputs for dataset: {dataset}")
         for deviation in deviations:
+            print(f"Plotting vision outputs for deviation: {deviation}")
             subset = [
                 record
                 for record in records
