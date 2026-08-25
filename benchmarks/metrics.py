@@ -96,13 +96,18 @@ def safe_sqrtm_symmetric(A):
     Supports batched inputs, GPU acceleration, and autograd.
     """
     # L = eigenvalues, V = eigenvectors
-    L, V = torch.linalg.eigh(A)
+    try:
+        L, V = torch.linalg.eigh(A)
+    except Exception as e:
+        print("Error in computing sqrtm with Pytorch, falling back to SciPy")
+        return sqrtm(A.detach().cpu().numpy()).astype(np.float32)
 
     # Clamp negative eigenvalues to 0 due to numerical precision issues
     L = torch.clamp(L, min=0.0)
 
     # Recompose: V * diag(sqrt(L)) * V.T
-    return (V * torch.sqrt(L).unsqueeze(-2)) @ V.transpose(-2, -1)
+    sqrtA = (V * torch.sqrt(L).unsqueeze(-2)) @ V.transpose(-2, -1)
+    return sqrtA.detach().cpu().numpy()
 
 
 def fid_score(x: np.ndarray, y: np.ndarray) -> float:
@@ -113,7 +118,7 @@ def fid_score(x: np.ndarray, y: np.ndarray) -> float:
     my = y.mean(axis=0)
     sx = _as_cov_matrix(x)
     sy = _as_cov_matrix(y)
-    cov_prod = safe_sqrtm_symmetric(sx @ sy).detach().cpu().numpy()
+    cov_prod = safe_sqrtm_symmetric(sx @ sy)
     if np.iscomplexobj(cov_prod):
         cov_prod = cov_prod.real
     score = np.sum((mx - my) ** 2) + np.trace(
