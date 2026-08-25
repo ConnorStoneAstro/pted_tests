@@ -16,7 +16,7 @@ from .datasets.gaussian import project_to_first_pc
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
-def _prepare_samples(values: np.ndarray) -> np.ndarray:
+def _prepare_sample(values: np.ndarray) -> np.ndarray:
     values = np.asarray(values, dtype=np.float32)
     if values.ndim == 1:
         values = values[:, None]
@@ -25,9 +25,12 @@ def _prepare_samples(values: np.ndarray) -> np.ndarray:
     return values
 
 
+def _prepare_samples(x, y):
+    return _prepare_sample(x), _prepare_sample(y)
+
+
 def _z_score_norm(x: np.ndarray, y: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
-    x = _prepare_samples(x)
-    y = _prepare_samples(y)
+    x, y = _prepare_samples(x, y)
     mean = np.mean(x, axis=0, keepdims=True)
     std = np.std(x, axis=0, keepdims=True)
     std[np.isclose(std, 0, rtol=0, atol=1e-8)] = 1.0
@@ -49,7 +52,7 @@ def ks_pc1_pvalue(
 def _split_baseline_samples(
     x: np.ndarray, rng: np.random.Generator
 ) -> tuple[np.ndarray, np.ndarray]:
-    x = _prepare_samples(x)
+    x = _prepare_sample(x)
     if len(x) < 2:
         raise ValueError("FLD requires at least 2 baseline samples")
 
@@ -61,7 +64,7 @@ def _split_baseline_samples(
 
 
 def fld_score(x: np.ndarray, y: np.ndarray, rng: np.random.Generator) -> float:
-    x, y = _z_score_norm(x, y)
+    x, y = _prepare_samples(x, y)
     x = x + np.random.normal(loc=0.0, scale=1e-6, size=x.shape)
     y = y + np.random.normal(loc=0.0, scale=1e-6, size=y.shape)
     train_x, test_x = _split_baseline_samples(x, rng=rng)
@@ -83,7 +86,6 @@ def fld_two_sample_score(
 
 
 def _as_cov_matrix(values: np.ndarray) -> np.ndarray:
-    values = _prepare_samples(values)
     covariance = torch.cov(torch.as_tensor(values, dtype=torch.float32, device=DEVICE).T)
     return torch.atleast_2d(covariance)
 
@@ -104,7 +106,7 @@ def safe_sqrtm_symmetric(A):
 
 
 def fid_score(x: np.ndarray, y: np.ndarray) -> float:
-    x, y = _z_score_norm(x, y)
+    x, y = _prepare_samples(x, y)
     x = x + np.random.normal(loc=0.0, scale=1e-6, size=x.shape)
     y = y + np.random.normal(loc=0.0, scale=1e-6, size=y.shape)
     mx = x.mean(axis=0)
@@ -135,7 +137,7 @@ def pted_two_sample_pvalue(
     permutations: int,
     rng: np.random.Generator,
 ) -> float:
-    x, y = _z_score_norm(x, y)
+    x, y = _prepare_samples(x, y)
     return float(
         pted(
             torch.tensor(x, device=DEVICE),
@@ -151,7 +153,7 @@ def pted_two_sample_pvalue_onetail(
     permutations: int,
     rng: np.random.Generator,
 ) -> float:
-    x, y = _z_score_norm(x, y)
+    x, y = _prepare_samples(x, y)
     return float(
         pted(
             torch.tensor(x, device=DEVICE),
@@ -168,7 +170,7 @@ def pqm_mean_chi2_and_pvalue(
     permutations: int,
     rng: np.random.Generator,
 ) -> float:
-    x, y = _z_score_norm(x, y)
+    x, y = _prepare_samples(x, y)
 
     # PQM internally samples references from x/y (and optional Gaussian draws).
     # Ensure `num_refs` cannot exceed sample-size-safe limits for small prototype runs.
@@ -182,6 +184,7 @@ def pqm_mean_chi2_and_pvalue(
         torch.tensor(y, device=DEVICE),
         num_refs=safe_num_refs,
         re_tessellation=permutations,
+        disable_tqdm=True,
     )
 
     pqm_values = np.asarray(pqm_values, dtype=float)
