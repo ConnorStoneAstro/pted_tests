@@ -30,7 +30,7 @@ def _z_score_norm(x: np.ndarray, y: np.ndarray) -> tuple[np.ndarray, np.ndarray]
     y = _prepare_samples(y)
     mean = np.mean(x, axis=0, keepdims=True)
     std = np.std(x, axis=0, keepdims=True)
-    std[np.isclose(std, 0, rtol=0, atol=1e-10)] = 1.0
+    std[np.isclose(std, 0, rtol=0, atol=1e-8)] = 1.0
     x_norm = (x - mean) / std
     y_norm = (y - mean) / std
     return x_norm, y_norm
@@ -62,8 +62,8 @@ def _split_baseline_samples(
 
 def fld_score(x: np.ndarray, y: np.ndarray, rng: np.random.Generator) -> float:
     x, y = _z_score_norm(x, y)
-    x = x + np.random.normal(loc=0.0, scale=1e-9, size=x.shape)
-    y = y + np.random.normal(loc=0.0, scale=1e-9, size=y.shape)
+    x = x + np.random.normal(loc=0.0, scale=1e-6, size=x.shape)
+    y = y + np.random.normal(loc=0.0, scale=1e-6, size=y.shape)
     train_x, test_x = _split_baseline_samples(x, rng=rng)
 
     train_feat = torch.as_tensor(train_x, dtype=torch.float32)
@@ -88,13 +88,30 @@ def _as_cov_matrix(values: np.ndarray) -> np.ndarray:
     return torch.atleast_2d(covariance)
 
 
+def safe_sqrtm_symmetric(A):
+    """
+    Computes the matrix square root of a symmetric positive semi-definite matrix.
+    Supports batched inputs, GPU acceleration, and autograd.
+    """
+    # L = eigenvalues, V = eigenvectors
+    L, V = torch.linalg.eigh(A)
+
+    # Clamp negative eigenvalues to 0 due to numerical precision issues
+    L = torch.clamp(L, min=0.0)
+
+    # Recompose: V * diag(sqrt(L)) * V.T
+    return (V * torch.sqrt(L).unsqueeze(-2)) @ V.transpose(-2, -1)
+
+
 def fid_score(x: np.ndarray, y: np.ndarray) -> float:
     x, y = _z_score_norm(x, y)
+    x = x + np.random.normal(loc=0.0, scale=1e-6, size=x.shape)
+    y = y + np.random.normal(loc=0.0, scale=1e-6, size=y.shape)
     mx = x.mean(axis=0)
     my = y.mean(axis=0)
     sx = _as_cov_matrix(x)
     sy = _as_cov_matrix(y)
-    cov_prod = sqrtm((sx @ sy).detach().cpu().numpy())
+    cov_prod = safe_sqrtm_symmetric(sx @ sy).detach().cpu().numpy()
     if np.iscomplexobj(cov_prod):
         cov_prod = cov_prod.real
     score = np.sum((mx - my) ** 2) + np.trace(
