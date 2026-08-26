@@ -196,6 +196,41 @@ def pqm_mean_chi2_and_pvalue(
     return float(np.median(pqm_values))
 
 
+def _rbf_kernel_matrix(z: torch.Tensor, sigma: float = 1.0) -> torch.Tensor:
+    sq_dists = torch.cdist(z, z, p=2.0) ** 2
+    return torch.exp(-sq_dists / (2.0 * sigma**2))
+
+
+def _mmd2_biased(K: torch.Tensor, idx_x: torch.Tensor, idx_y: torch.Tensor) -> torch.Tensor:
+    kxx = K[idx_x][:, idx_x].mean()
+    kyy = K[idx_y][:, idx_y].mean()
+    kxy = K[idx_x][:, idx_y].mean()
+    return kxx + kyy - 2.0 * kxy
+
+
+def mmd_rbf_two_sample_pvalue(
+    x: np.ndarray,
+    y: np.ndarray,
+    permutations: int,
+    rng: np.random.Generator,
+) -> float:
+    # Fixed RBF bandwidth (sigma=1); no kernel tuning is performed.
+    x, y = _prepare_samples(x, y)
+    m, n = len(x), len(y)
+    z = torch.tensor(np.concatenate([x, y], axis=0), device=DEVICE)
+    K = _rbf_kernel_matrix(z, sigma=1.0)
+
+    idx = torch.arange(m + n, device=DEVICE)
+    observed = _mmd2_biased(K, idx[:m], idx[m:])
+
+    count = 0
+    for _ in range(permutations):
+        perm = torch.as_tensor(rng.permutation(m + n), device=DEVICE)
+        count += int(_mmd2_biased(K, perm[:m], perm[m:]) >= observed)
+
+    return float((count + 1) / (permutations + 1))
+
+
 def metric_sweep():
     # Default metric map for runners that need comparable sweep scores.
     return {
@@ -204,4 +239,5 @@ def metric_sweep():
         "fld": fld_two_sample_score,
         "fid": fid_two_sample_score,
         "pqm": pqm_mean_chi2_and_pvalue,
+        "mmd": mmd_rbf_two_sample_pvalue,
     }

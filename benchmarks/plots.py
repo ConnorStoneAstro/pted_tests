@@ -19,6 +19,7 @@ METHOD_COLOURS = {
     "fld": "tab:green",
     "fid": "tab:red",
     "pqm": "tab:purple",
+    "mmd": "tab:cyan",
 }
 METHOD_LABELS = {
     "pted": "PTED",
@@ -26,6 +27,7 @@ METHOD_LABELS = {
     "fld": "FLD",
     "fid": "FID",
     "pqm": "PQM",
+    "mmd": "MMD",
 }
 
 
