@@ -108,7 +108,9 @@ def plot_method_sweep(
             useax = subax
         else:
             useax = ax
-        useax.fill_between(x_values, lowers, uppers, alpha=0.05, color=METHOD_COLOURS[method])
+        useax.fill_between(
+            x_values, lowers, uppers, alpha=0.05, color=METHOD_COLOURS[method], linewidth=0
+        )
         (line,) = useax.plot(
             x_values,
             medians,
