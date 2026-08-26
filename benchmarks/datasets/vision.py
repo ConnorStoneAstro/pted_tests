@@ -31,16 +31,13 @@ def generate_vision_problem(
             raise ValueError("Dataset must contain at least two classes for class_drop deviation")
         p = np.ones(len(labels))
         p[labels == classes[0]] = 1 - severity
-        y = dataset[0][rng.choice(permute[n_samples:], size=n_samples, p=p / p.sum())]
+        y = dataset[0][
+            rng.choice(permute[n_samples:], size=n_samples, p=p / p.sum(), replace=False)
+        ]
     elif deviation == "white_noise":
         y = dataset[0][permute[n_samples : 2 * n_samples]]
         noise = rng.normal(loc=0.0, scale=severity / 3, size=y.shape)
-        # std = np.std(y, axis=0, keepdims=True)
-        # mean = np.mean(y, axis=0, keepdims=True)
         y = y + noise
-        # y = (y - mean) * (
-        #     std / np.std(y, axis=0, keepdims=True)
-        # ) + mean  # Rescale to match original std
     else:
         raise ValueError(f"Unknown deviation kind: {deviation}")
 
