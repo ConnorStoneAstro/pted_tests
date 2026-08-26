@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from collections import defaultdict
-from collections.abc import Mapping
 from pathlib import Path
 from typing import Iterable, Sequence
 
@@ -72,8 +71,8 @@ def plot_method_sweep(
     decision_threshold: float | None = None,
     lower_quantile: float = 0.16,
     upper_quantile: float = 0.84,
-    max_linewidth: float = 2.6,
-    min_linewidth: float = 1.1,
+    max_linewidth: float = 3,
+    min_linewidth: float = 1.5,
 ):
     for metric in metric_sweep().keys():
         subset = [record for record in records if record["method"] == metric]
@@ -109,7 +108,7 @@ def plot_method_sweep(
             useax = subax
         else:
             useax = ax
-        useax.fill_between(x_values, lowers, uppers, alpha=0.15, color=METHOD_COLOURS[method])
+        useax.fill_between(x_values, lowers, uppers, alpha=0.05, color=METHOD_COLOURS[method])
         (line,) = useax.plot(
             x_values,
             medians,
