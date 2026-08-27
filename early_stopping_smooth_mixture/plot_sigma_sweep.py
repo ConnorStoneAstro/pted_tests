@@ -27,7 +27,7 @@ from early_stopping.two_moons import two_moons_density
 
 matplotlib.rcParams.update({"font.size": 14, "axes.labelsize": 14, "axes.titlesize": 14})
 
-P_VALUE_METHODS = {"pted", "ks_pc1", "pqm"}
+P_VALUE_METHODS = {"pted", "ks_pc1", "pqm", "mmd"}
 METHOD_COLORS = {
     "pted": "tab:blue",
     "ks_pc1": "tab:orange",
