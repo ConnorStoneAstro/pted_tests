@@ -26,6 +26,12 @@ python benchmarks/load_vision_datasets.py --download --datasets cifar10
 
 Run scripts from the repository root so local imports such as `benchmarks.*` resolve correctly.
 
+As a basic setup test, run the dry-run script. It checks that the main experiment entry points can parse their default configuration without starting the long sweeps:
+
+```bash
+bash run_all_dry_runs.sh
+```
+
 ## Available Test Groups
 
 | Folder | Purpose | Main entry points |
@@ -44,12 +50,10 @@ The commented shell script [run_all_tests.sh](run_all_tests.sh) is a high-level 
 bash run_all_tests.sh
 ```
 
-Those default commands can take a long time. For a quick wiring check, use the dry-run examples in each subfolder README, such as:
+Those default commands can take a long time. For a quick wiring check, run:
 
 ```bash
-python benchmarks/run_gaussian_suite.py --dry-run
-python coverage_test/run_coverage_test.py --dry-run
-python early_stopping_smooth_mixture/run_sigma_sweep.py --dry-run
+bash run_all_dry_runs.sh
 ```
 
 Use the individual subfolder commands when you want to change sample counts, seeds, permutations, sigma sweeps, datasets, or output directories.
