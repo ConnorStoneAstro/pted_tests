@@ -50,21 +50,15 @@ def _load_run_artifacts(output_dir: Path) -> dict[str, Any]:
 
 def plot_sweep_summary(output_dir: Path, sigma_values: np.ndarray, pvalues: np.ndarray) -> Path:
     fig, ax = plt.subplots(figsize=(6.8, 4.2))
-    ax.plot(sigma_values, pvalues, color="tab:blue", linewidth=2.5, label="PTED coverage p-value")
+    ax.plot(sigma_values, pvalues, color="tab:blue", linewidth=2.5, label="PTED")
     # ax.scatter(sigma_values[[0, -1]], pvalues[[0, -1]], color="tab:blue", s=18)
     hdp_pvalue = np.load(output_dir / "pvalues_hdp.npy")
-    ax.plot(
-        sigma_values, hdp_pvalue, color="tab:green", linewidth=2.5, label="HPD coverage p-value"
-    )
+    ax.plot(sigma_values, hdp_pvalue, color="tab:green", linewidth=2.5, label="HPD")
     # ax.scatter(sigma_values[[0, -1]], hdp_pvalue[[0, -1]], color="tab:green", s=18)
     ks_pvalues = np.load(output_dir / "pvalues_ks.npy")
-    ax.plot(
-        sigma_values, ks_pvalues, color="tab:orange", linewidth=2.5, label="KS coverage p-value"
-    )
+    ax.plot(sigma_values, ks_pvalues, color="tab:orange", linewidth=2.5, label="KS")
     mmd_pvalues = np.load(output_dir / "pvalues_mmd.npy")
-    ax.plot(
-        sigma_values, mmd_pvalues, color="tab:cyan", linewidth=2.5, label="MMD coverage p-value"
-    )
+    ax.plot(sigma_values, mmd_pvalues, color="tab:cyan", linewidth=2.5, label="MMD")
     mira_pvalue = np.load(output_dir / "pvalues_mira.npy")
     stdband = np.sqrt((1 / 18) / 64)
     mira_bounds = np.interp([2 / 3 - stdband, 2 / 3 + stdband], mira_pvalue, sigma_values)
@@ -91,7 +85,7 @@ def plot_sweep_summary(output_dir: Path, sigma_values: np.ndarray, pvalues: np.n
 
     ax.set_xscale("log")
     ax.set_xlabel("Posterior sigma scale [scale * $\\Sigma_{\\rm true}$]")
-    ax.set_ylabel("p-value")
+    ax.set_ylabel("coverage p-value")
     ax.set_title("PTED posterior coverage sensitivity sweep")
     ax.set_ylim(0.0, 1.0)
     ax.set_xlim(sigma_values.min(), sigma_values.max())
