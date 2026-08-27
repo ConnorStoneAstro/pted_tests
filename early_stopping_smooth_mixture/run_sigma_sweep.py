@@ -26,7 +26,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
         "--output-dir",
         default="early_stopping_smooth_mixture/results/two_moons_sigma_sweep",
     )
-    parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument("--seed", type=int, default=0)
     parser.add_argument("--metric-seed", type=int, default=11)
     parser.add_argument("--n-train", type=int, default=256)
     parser.add_argument("--n-generated", type=int, default=1024)
