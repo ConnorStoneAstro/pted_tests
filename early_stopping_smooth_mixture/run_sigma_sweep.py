@@ -12,7 +12,7 @@ if __package__ in (None, ""):
     sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from benchmarks.metrics import metric_sweep
-from early_stopping.two_moons import sample_two_moons, two_moons_density
+from early_stopping_smooth_mixture.two_moons import sample_two_moons, two_moons_density
 
 
 def build_arg_parser() -> argparse.ArgumentParser:
