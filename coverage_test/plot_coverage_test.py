@@ -61,6 +61,10 @@ def plot_sweep_summary(output_dir: Path, sigma_values: np.ndarray, pvalues: np.n
     ax.plot(
         sigma_values, ks_pvalues, color="tab:orange", linewidth=2.5, label="KS coverage p-value"
     )
+    mmd_pvalues = np.load(output_dir / "pvalues_mmd.npy")
+    ax.plot(
+        sigma_values, mmd_pvalues, color="tab:cyan", linewidth=2.5, label="MMD coverage p-value"
+    )
     mira_pvalue = np.load(output_dir / "pvalues_mira.npy")
     stdband = np.sqrt((1 / 18) / 64)
     mira_bounds = np.interp([2 / 3 - stdband, 2 / 3 + stdband], mira_pvalue, sigma_values)
