@@ -1,7 +1,6 @@
 # Smooth Mixture Sigma Sweep (Two Moons)
 
-This directory contains a two-stage experiment for a simple Gaussian mixture
-"training" model on two moons.
+This directory contains a two-stage experiment for a simple Gaussian mixture "training" model on two moons.
 
 - Stage 1 (`run_sigma_sweep.py`): evaluate metrics across a sigma sweep.
 - Stage 2 (`plot_sigma_sweep.py`): render side-by-side frames and a GIF.
@@ -14,7 +13,7 @@ This directory contains a two-stage experiment for a simple Gaussian mixture
 
   `generated = center[component] + sigma * base_noise`
 
-This keeps samples coupled across sigma values and yields smoother metric curves.
+This keeps samples coupled across sigma values and yields smoother metric curves. Large sigma values produce diffuse generated samples, while small sigma values collapse samples tightly around training centers.
 
 ## Metrics
 
@@ -25,8 +24,23 @@ The sweep uses the same metric map as benchmarks via `benchmarks.metrics.metric_
 - `fld`
 - `fid`
 - `pqm`
+- `mmd`
 
 ## Stage 1: Evaluate Sweep
+
+Run from the repository root:
+
+```bash
+python early_stopping_smooth_mixture/run_sigma_sweep.py
+```
+
+To inspect the default configuration and generated sigma grid without running metrics:
+
+```bash
+python early_stopping_smooth_mixture/run_sigma_sweep.py --dry-run
+```
+
+A full explicit example is:
 
 ```bash
 python early_stopping_smooth_mixture/run_sigma_sweep.py \
@@ -38,6 +52,35 @@ python early_stopping_smooth_mixture/run_sigma_sweep.py \
   --n-sigmas 120 \
   --sigma-schedule log \
   --permutations 1000
+```
+
+Common options are:
+
+- `--output-dir`: output directory for arrays, CSVs, and plots
+- `--seed`: random seed for training data, component assignments, and base noise
+- `--metric-seed`: seed used for metric randomness
+- `--n-train`: number of two-moons training samples and mixture centers
+- `--n-generated`: number of generated samples at each sigma
+- `--noise`: two-moons data noise and reference-density width
+- `--permutations`: permutation count used by metrics
+- `--sigma-max`: first and largest sigma value
+- `--sigma-min`: final and smallest sigma value
+- `--n-sigmas`: number of sigma values in the sweep
+- `--sigma-schedule`: `log` or `linear`
+- `--save-samples`: save generated samples for every sigma under `sigma_samples/`
+- `--dry-run`: print the resolved configuration and sigma grid, then exit
+
+A smaller local check looks like:
+
+```bash
+python early_stopping_smooth_mixture/run_sigma_sweep.py \
+  --output-dir early_stopping_smooth_mixture/results/two_moons_quick \
+  --n-train 48 \
+  --n-generated 96 \
+  --permutations 20 \
+  --sigma-max 1.0 \
+  --sigma-min 0.02 \
+  --n-sigmas 6
 ```
 
 Main outputs:
@@ -53,11 +96,31 @@ Main outputs:
 
 ## Stage 2: Plot + GIF
 
+After Stage 1 has written artifacts, run:
+
+```bash
+python early_stopping_smooth_mixture/plot_sigma_sweep.py
+```
+
+For a non-default output directory:
+
 ```bash
 python early_stopping_smooth_mixture/plot_sigma_sweep.py \
   --output-dir early_stopping_smooth_mixture/results/two_moons_sigma_sweep \
   --gif-name sigma_sweep_animation.gif
 ```
+
+Plotting options are:
+
+- `--output-dir`: directory containing Stage 1 artifacts
+- `--plot-frames`: write PNG frames
+- `--make-gif`: write a GIF from frames
+- `--gif-name`: output GIF filename
+- `--gif-fps`: animation frames per second
+- `--gif-loop`: GIF loop count, where `0` means loop forever
+- `--frame-step`: include every Nth frame when building the GIF
+
+If neither `--plot-frames` nor `--make-gif` is supplied, the plot script does both.
 
 This produces:
 

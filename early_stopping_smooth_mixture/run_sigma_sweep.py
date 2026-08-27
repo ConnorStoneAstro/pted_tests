@@ -26,6 +26,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
         "--output-dir",
         default="early_stopping_smooth_mixture/results/two_moons_sigma_sweep",
     )
+    parser.add_argument("--dry-run", action="store_true", help="Print configuration and exit")
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument("--metric-seed", type=int, default=11)
     parser.add_argument("--n-train", type=int, default=256)
@@ -157,6 +158,12 @@ def run(args: argparse.Namespace) -> None:
 def main() -> None:
     parser = build_arg_parser()
     args = parser.parse_args()
+    if args.dry_run:
+        config = vars(args).copy()
+        config["sigma_values"] = _build_sigma_values(args).tolist()
+        print("Dry run configuration")
+        print(json.dumps(config, indent=2))
+        return
     run(args)
 
 

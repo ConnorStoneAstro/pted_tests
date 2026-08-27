@@ -3,6 +3,8 @@ pqm
 git+https://github.com/marcojira/fld.git
 numpy
 imageio
+scipy
+matplotlib
 pyyaml
 torch
 torchvision

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import sys
 from pathlib import Path
 from typing import Any
@@ -130,6 +131,7 @@ def run_coverage_sweep(args: argparse.Namespace) -> dict[str, Any]:
 def build_arg_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Run a Gaussian coverage sweep experiment")
     parser.add_argument("--output-dir", default="coverage_test/results/coverage_test")
+    parser.add_argument("--dry-run", action="store_true", help="Print configuration and exit")
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--n-sims", type=int, default=64)
     parser.add_argument("--n-posterior-samples", type=int, default=128)
@@ -143,6 +145,16 @@ def build_arg_parser() -> argparse.ArgumentParser:
 def main() -> None:
     parser = build_arg_parser()
     args = parser.parse_args()
+    if args.dry_run:
+        config = vars(args).copy()
+        config["sigma_values"] = build_sigma_values(
+            args.sigma_min,
+            args.sigma_max,
+            args.n_sigmas,
+        ).tolist()
+        print("Dry run configuration")
+        print(json.dumps(config, indent=2))
+        return
     run_coverage_sweep(args)
 
 
