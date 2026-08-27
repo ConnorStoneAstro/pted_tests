@@ -10,6 +10,7 @@ from pted import pted_coverage_test, utils
 import torch
 from mira_score import mira
 import scipy.stats
+from benchmarks.metrics import metric_sweep
 
 if __package__ in (None, ""):
     sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
@@ -56,7 +57,9 @@ def run_coverage_sweep(args: argparse.Namespace) -> dict[str, Any]:
     pvalues_pted = np.zeros(len(sigma_values), dtype=np.float64)
     pvalues_mira = np.zeros(len(sigma_values), dtype=np.float64)
     pvalues_hdp = np.zeros(len(sigma_values), dtype=np.float64)
+    pvalues_mmd = np.zeros(len(sigma_values), dtype=np.float64)
     pvalues_ks = np.zeros(len(sigma_values), dtype=np.float64)
+    MMD = metric_sweep()["mmd"]
     for i, sigma in enumerate(sigma_values):
         scaled_posterior_samples = (
             posterior_samples - data_values[None, :, :]
@@ -76,6 +79,17 @@ def run_coverage_sweep(args: argparse.Namespace) -> dict[str, Any]:
             num_runs=args.permutations,
             norm=True,
         )[0]
+        # MMD
+        pvals_mmd = np.array(
+            [
+                MMD(g, p)
+                for g, p in zip(
+                    torch.tensor(ground_truth),
+                    torch.tensor(np.moveaxis(scaled_posterior_samples, 1, 0)),
+                )
+            ]
+        )
+        pvalues_mmd[i] = utils.two_tailed_p(-2 * np.sum(np.log(pvals_mmd + 1e-10)), 2 * args.n_sims)
         # HDP
         chi2_hdp = 0
         for gt, dv, dc, sps in zip(
@@ -103,6 +117,7 @@ def run_coverage_sweep(args: argparse.Namespace) -> dict[str, Any]:
     np.save(output_dir / "pvalues_pted.npy", pvalues_pted)
     np.save(output_dir / "pvalues_mira.npy", pvalues_mira)
     np.save(output_dir / "pvalues_hdp.npy", pvalues_hdp)
+    np.save(output_dir / "pvalues_mmd.npy", pvalues_mmd)
     np.save(output_dir / "pvalues_ks.npy", pvalues_ks)
     np.save(output_dir / "sigma_values.npy", sigma_values)
     np.save(output_dir / "ground_truth.npy", ground_truth)
