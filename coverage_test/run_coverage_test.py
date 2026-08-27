@@ -10,10 +10,11 @@ from pted import pted_coverage_test, utils
 import torch
 from mira_score import mira
 import scipy.stats
-from benchmarks.metrics import metric_sweep
 
 if __package__ in (None, ""):
     sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
+from benchmarks.metrics import metric_sweep
 
 
 def sample_data_covariance(rng: np.random.Generator) -> np.ndarray:
