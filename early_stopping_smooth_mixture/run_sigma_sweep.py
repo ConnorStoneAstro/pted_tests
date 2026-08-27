@@ -28,13 +28,13 @@ def build_arg_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--metric-seed", type=int, default=11)
-    parser.add_argument("--n-train", type=int, default=200)
+    parser.add_argument("--n-train", type=int, default=256)
     parser.add_argument("--n-generated", type=int, default=1024)
     parser.add_argument("--noise", type=float, default=0.08)
-    parser.add_argument("--permutations", type=int, default=1000)
+    parser.add_argument("--permutations", type=int, default=1024)
     parser.add_argument("--sigma-max", type=float, default=1.0)
     parser.add_argument("--sigma-min", type=float, default=0.005)
-    parser.add_argument("--n-sigmas", type=int, default=120)
+    parser.add_argument("--n-sigmas", type=int, default=128)
     parser.add_argument(
         "--sigma-schedule",
         choices=["log", "linear"],
