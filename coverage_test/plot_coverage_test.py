@@ -80,7 +80,7 @@ def plot_sweep_summary(output_dir: Path, sigma_values: np.ndarray, pvalues: np.n
     # )
     # ax_mira.axhline(2 / 3 + np.sqrt(varband), linestyle=":", color="tab:grey", alpha=0.65)
 
-    ax.axvline(1.0, linestyle="--", color="tab:gray", label="correct sigma scale")
+    ax.axvline(1.0, linestyle="--", color="tab:gray", label="True sigma")
     # ax.axhline(0.05, linestyle=":", color="tab:red", alpha=0.65, label="0.05 threshold")
 
     ax.set_xscale("log")
