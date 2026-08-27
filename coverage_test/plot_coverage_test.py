@@ -30,7 +30,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
 
 def _load_run_artifacts(output_dir: Path) -> dict[str, Any]:
     sigma_values = np.load(output_dir / "sigma_values.npy")
-    pvalues = np.load(output_dir / "pvalues.npy")
+    pvalues = np.load(output_dir / "pvalues_pted.npy")
     ground_truth = np.load(output_dir / "ground_truth.npy")
     data_values = np.load(output_dir / "data_values.npy")
     data_cov = np.load(output_dir / "data_cov.npy")
