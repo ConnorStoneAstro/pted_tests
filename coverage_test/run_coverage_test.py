@@ -84,7 +84,7 @@ def run_coverage_sweep(args: argparse.Namespace) -> dict[str, Any]:
         pvals_mmd = np.array(
             [
                 MMD(
-                    g.unsqueeze(-1),
+                    g.unsqueeze(-1).unsqueeze(-1),
                     p,
                     permutations=args.permutations,
                     rng=np.random.default_rng(42),
