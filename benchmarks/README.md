@@ -59,6 +59,14 @@ The plotting helpers in `benchmarks/plots.py` are intended to support two kinds 
 
 These are kept outside the core PTED package so they can evolve into a separate analysis workflow later.
 
+The explanatory visualizations in `benchmarks/visualizations.py` show what each configured Gaussian and vision deviation does to the samples. They read the same Python config files as the benchmark runners so the severity grids match the experiment settings.
+
+To generate the default visualization set:
+
+```bash
+python benchmarks/visualizations.py
+```
+
 ## Running Benchmarks
 
 Run from the repository root.
