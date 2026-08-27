@@ -11,6 +11,9 @@ python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
 ```
 
+The requirements have hard coded versions, though you may not actually need to be so strict. I simply put those for reproducibility concerns. Also, for PyTorch you may run into an issue since it is an old version I was using. If so, check out the [PyTorch documentation for installing older versions](https://pytorch.org/get-started/previous-versions/).
+
+
 The vision benchmark suite can use MNIST and CIFAR10 from `benchmarks/data`. To download both datasets as part of setup, run:
 
 ```bash
