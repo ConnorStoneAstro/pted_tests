@@ -4,11 +4,9 @@ This repository collects experiment scripts for exercising PTED and related two-
 
 ## Environment Setup
 
-From the repository root:
+From the repository root, make a new environment then do:
 
 ```bash
-python -m venv .venv
-source .venv/bin/activate
 python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
 ```
