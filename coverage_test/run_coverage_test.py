@@ -83,12 +83,7 @@ def run_coverage_sweep(args: argparse.Namespace) -> dict[str, Any]:
         # MMD
         pvals_mmd = np.array(
             [
-                MMD(
-                    g.unsqueeze(-1).unsqueeze(-1),
-                    p,
-                    permutations=args.permutations,
-                    rng=np.random.default_rng(42),
-                )
+                MMD(g.reshape(1, 1), p, permutations=args.permutations, rng=rng)
                 for g, p in zip(
                     torch.tensor(ground_truth),
                     torch.tensor(np.moveaxis(scaled_posterior_samples, 1, 0)),
