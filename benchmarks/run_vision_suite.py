@@ -59,7 +59,7 @@ def _plot_vision_outputs(records: list[dict[str, object]], out_dir: Path) -> Non
             ]
             plot_method_sweep(
                 subset,
-                output_path=out_dir / f"vision_{dataset}_{deviation}_score.png",
+                output_path=out_dir / f"vision_{dataset}_{deviation}_score.pdf",
                 title=f"Vision test {dataset_names[dataset]}: {deviation_titles[deviation]}",
                 x_key="severity",
                 y_key="score",

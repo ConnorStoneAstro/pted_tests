@@ -62,7 +62,7 @@ def _plot_gaussian_outputs(records: list[dict[str, object]], out_dir: Path) -> N
         subset = [record for record in records if str(record["deviation"]) == deviation]
         plot_method_sweep(
             subset,
-            output_path=out_dir / f"gaussian_1d_{deviation}_score.png",
+            output_path=out_dir / f"gaussian_1d_{deviation}_score.pdf",
             title=f"Gaussian 1D test: $x \\sim \\mathcal{{N}}(0, 1)$, {deviation_titles[deviation]}",
             x_key="severity",
             y_key="score",

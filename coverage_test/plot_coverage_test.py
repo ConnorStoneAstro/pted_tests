@@ -99,7 +99,7 @@ def plot_sweep_summary(output_dir: Path, sigma_values: np.ndarray, pvalues: np.n
     # handles2, labels2 = ax_mira.get_legend_handles_labels()
     # ax.legend(handles1 + handles2, labels1 + labels2, loc="upper left", fontsize=10)
     ax.legend(loc="upper left", fontsize=10)
-    path = output_dir / "coverage_sweep_summary.png"
+    path = output_dir / "coverage_sweep_summary.pdf"
     fig.tight_layout()
     fig.savefig(path, dpi=180)
     plt.close(fig)
@@ -162,7 +162,7 @@ def plot_case_comparison(
 
     # fig.suptitle("Three posterior regimes: correct, underconfident, and overconfident")
     # fig.tight_layout(rect=[0, 0, 1, 0.98])
-    path = output_dir / "coverage_case_comparison.png"
+    path = output_dir / "coverage_case_comparison.pdf"
     fig.savefig(path, dpi=200, bbox_inches="tight")
     plt.close(fig)
     return path
@@ -178,7 +178,7 @@ def pit_plot(
         torch.tensor(ground_truth),
         torch.tensor(posterior_samples),
         permutations=512,
-        pit_plot=str(output_dir / "pit_plot.png"),
+        pit_plot=str(output_dir / "pit_plot.pdf"),
     )
 
 

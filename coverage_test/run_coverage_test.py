@@ -72,6 +72,7 @@ def run_coverage_sweep(args: argparse.Namespace) -> dict[str, Any]:
             torch.tensor(ground_truth),
             torch.tensor(scaled_posterior_samples),
             permutations=args.permutations,
+            pit_plot=output_dir / f"pit_plot_sigma_{i:04d}.pdf",
         )
         # MIRA
         torch.manual_seed(42)
