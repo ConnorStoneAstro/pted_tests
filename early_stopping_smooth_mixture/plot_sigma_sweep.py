@@ -233,7 +233,7 @@ def _make_gif(
     if frame_step <= 0:
         raise ValueError("frame_step must be >= 1")
 
-    pattern = re.compile(r"^sigma_frame_(\d+)\.pdf$")
+    pattern = re.compile(r"^sigma_frame_(\d+)\.png$")
 
     def frame_key(path: Path) -> int:
         match = pattern.match(path.name)
@@ -337,7 +337,7 @@ def run(args: argparse.Namespace) -> None:
     if args.plot_frames or args.make_gif:
         for idx, sigma in enumerate(sigma_values):
             generated = base_centers + float(sigma) * base_noise
-            frame_path = frames_dir / f"sigma_frame_{idx:04d}.pdf"
+            frame_path = frames_dir / f"sigma_frame_{idx:04d}.png"
             _plot_frame(
                 frame_path=frame_path,
                 frame_idx=idx,
