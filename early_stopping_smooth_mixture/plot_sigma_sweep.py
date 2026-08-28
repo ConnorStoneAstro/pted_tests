@@ -23,7 +23,7 @@ except ImportError:
 if __package__ in (None, ""):
     sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from early_stopping.two_moons import two_moons_density
+from early_stopping_smooth_mixture.two_moons import two_moons_density
 
 matplotlib.rcParams.update({"font.size": 14, "axes.labelsize": 14, "axes.titlesize": 14})
 
