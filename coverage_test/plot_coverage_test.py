@@ -50,7 +50,7 @@ def _load_run_artifacts(output_dir: Path) -> dict[str, Any]:
 
 def plot_sweep_summary(output_dir: Path, sigma_values: np.ndarray, pvalues: np.ndarray) -> Path:
     fig, ax = plt.subplots(figsize=(6.8, 4.2))
-    ax.plot(sigma_values, pvalues, color="tab:blue", linewidth=2.5, label="PTED")
+    ax.plot(sigma_values, pvalues, color="tab:blue", linewidth=3.5, label="PTED")
     # ax.scatter(sigma_values[[0, -1]], pvalues[[0, -1]], color="tab:blue", s=18)
     hdp_pvalue = np.load(output_dir / "pvalues_hdp.npy")
     ax.plot(sigma_values, hdp_pvalue, color="tab:green", linewidth=2.5, label="HPD")
