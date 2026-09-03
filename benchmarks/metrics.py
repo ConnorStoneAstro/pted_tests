@@ -196,9 +196,10 @@ def pqm_mean_chi2_and_pvalue(
     return float(np.median(pqm_values))
 
 
-def _rbf_kernel_matrix(z: torch.Tensor, sigma: float = 1.0) -> torch.Tensor:
+def _rbf_kernel_matrix(z: torch.Tensor) -> torch.Tensor:
     sq_dists = torch.cdist(z, z, p=2.0) ** 2
-    return torch.exp(-sq_dists / (2.0 * sigma**2))
+    var = torch.median(sq_dists)
+    return torch.exp(-sq_dists / (2.0 * var))
 
 
 def _mmd2_biased(K: torch.Tensor, idx_x: torch.Tensor, idx_y: torch.Tensor) -> torch.Tensor:
@@ -218,7 +219,7 @@ def mmd_rbf_two_sample_pvalue(
     x, y = _prepare_samples(x, y)
     m, n = len(x), len(y)
     z = torch.tensor(np.concatenate([x, y], axis=0), device=DEVICE)
-    K = _rbf_kernel_matrix(z, sigma=1.0)
+    K = _rbf_kernel_matrix(z)
 
     idx = torch.arange(m + n, device=DEVICE)
     observed = _mmd2_biased(K, idx[:m], idx[m:])
