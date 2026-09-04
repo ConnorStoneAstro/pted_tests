@@ -141,12 +141,13 @@ def pted_two_sample_pvalue(
     y: np.ndarray,
     permutations: int,
     rng: np.random.Generator,
+    device=DEVICE,
 ) -> float:
     x, y = _prepare_samples(x, y)
     return float(
         pted(
-            torch.tensor(x, device=DEVICE),
-            torch.tensor(y, device=DEVICE),
+            torch.tensor(x, device=device),
+            torch.tensor(y, device=device),
             permutations=permutations,
         )
     )
@@ -157,12 +158,13 @@ def pted_two_sample_pvalue_onetail(
     y: np.ndarray,
     permutations: int,
     rng: np.random.Generator,
+    device=DEVICE,
 ) -> float:
     x, y = _prepare_samples(x, y)
     return float(
         pted(
-            torch.tensor(x, device=DEVICE),
-            torch.tensor(y, device=DEVICE),
+            torch.tensor(x, device=device),
+            torch.tensor(y, device=device),
             two_tailed=False,
             permutations=permutations,
         )

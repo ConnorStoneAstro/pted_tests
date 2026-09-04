@@ -93,7 +93,7 @@ def plot_chunk_runtime(
     ax.fill_between(chunk_sizes, lowers, uppers, alpha=0.15, color="tab:blue", linewidth=0)
     ax.plot(chunk_sizes, medians, color="tab:blue", marker="o", linewidth=2.0)
     ax.set_xscale("log", base=2)
-    ax.set_yscale("log")
+    # ax.set_yscale("log")
     ax.set_xlabel("chunk size")
     ax.set_ylabel("runtime [s]")
     ax.set_title(title)

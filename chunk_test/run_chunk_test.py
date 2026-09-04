@@ -67,16 +67,16 @@ def run_chunk_sweep(config: dict[str, Any]) -> list[dict[str, Any]]:
                 rng=rng,
             )
             x, y = _prepare_samples(problem.x, problem.y)
-            x_t = torch.tensor(x, device=DEVICE)
-            y_t = torch.tensor(y, device=DEVICE)
+            # x_t = torch.tensor(x, device=DEVICE)
+            # y_t = torch.tensor(y, device=DEVICE)
 
             for chunk_size in config["chunk_sizes"]:
                 torch.manual_seed(seed)
                 start = process_time()
                 value = float(
                     pted(
-                        x_t,
-                        y_t,
+                        x,
+                        y,
                         permutations=permutations,
                         chunk_size=int(chunk_size),
                         two_tailed=two_tailed,
