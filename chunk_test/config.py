@@ -7,7 +7,7 @@ CONFIG = {
     "n_samples": 8192,
     "chunk_sizes": [8192, 2048, 512, 128, 32, 8],
     "permutations": 512,
-    "seeds": [0, 1, 2, 3, 4],
-    "severities": np.linspace(0.0, 0.5, 9).tolist(),
+    "seeds": list(np.arange(32)),
+    "severities": np.linspace(0.0, 0.5, 15).tolist(),
     "two_tailed": False,
 }

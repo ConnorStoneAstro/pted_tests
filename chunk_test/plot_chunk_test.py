@@ -92,6 +92,7 @@ def plot_chunk_runtime(
     fig, ax = plt.subplots(figsize=(6, 4))
     ax.fill_between(chunk_sizes, lowers, uppers, alpha=0.15, color="tab:blue", linewidth=0)
     ax.plot(chunk_sizes, medians, color="tab:blue", marker="o", linewidth=2.0)
+    ax.axvline(max(chunk_sizes), color="k", linestyle="--", linewidth=1.5, alpha=0.7)
     ax.set_xscale("log", base=2)
     # ax.set_yscale("log")
     ax.set_xlabel("chunk size")
