@@ -7,6 +7,7 @@ grids in the figures match the ones actually benchmarked.
 from __future__ import annotations
 
 import argparse
+import csv
 from pathlib import Path
 import sys
 
@@ -24,6 +25,7 @@ if __package__ in (None, ""):
     sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from benchmarks.datasets.vision import load_vision_dataset
+from benchmarks.plots import plot_sensitivity_thresholds
 from benchmarks.utils import _grab_config
 
 SEVERITY_CMAP = "viridis"
@@ -295,6 +297,16 @@ def visualize_vision_suite(config: dict, out_dir: Path) -> None:
             print(f"Wrote figure: {path}")
 
 
+def _read_records_csv(path: Path) -> list[dict[str, object]]:
+    if not path.exists():
+        raise FileNotFoundError(f"Records CSV not found: {path}")
+    with path.open("r", encoding="utf-8", newline="") as file:
+        records = [dict(record) for record in csv.DictReader(file)]
+    if not records:
+        raise ValueError(f"Records CSV is empty: {path}")
+    return records
+
+
 def build_arg_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="Generate explanatory figures for the benchmark deviations"
@@ -314,17 +326,62 @@ def build_arg_parser() -> argparse.ArgumentParser:
         default="benchmarks/results/visualizations",
         help="Directory to write the figures into",
     )
+    parser.add_argument(
+        "--gaussian-records",
+        default=None,
+        help="Gaussian records CSV for the combined sensitivity-threshold figure",
+    )
+    parser.add_argument(
+        "--vision-records",
+        default=None,
+        help="Vision records CSV for the combined sensitivity-threshold figure",
+    )
+    parser.add_argument(
+        "--skip-sensitivity-summary",
+        action="store_true",
+        help="Do not generate the combined benchmark sensitivity-threshold figure",
+    )
     return parser
 
 
 def main(argv: list[str] | None = None) -> None:
     args = build_arg_parser().parse_args(argv)
     out_dir = Path(args.output_dir)
+    gaussian_config = None
+    vision_config = None
 
     if args.gaussian_config.lower() != "none":
-        visualize_gaussian_suite(_grab_config(args.gaussian_config), out_dir)
+        gaussian_config = _grab_config(args.gaussian_config)
+        visualize_gaussian_suite(gaussian_config, out_dir)
     if args.vision_config.lower() != "none":
-        visualize_vision_suite(_grab_config(args.vision_config), out_dir)
+        vision_config = _grab_config(args.vision_config)
+        visualize_vision_suite(vision_config, out_dir)
+    if not args.skip_sensitivity_summary:
+        records = []
+        gaussian_records = (
+            Path(args.gaussian_records)
+            if args.gaussian_records
+            else (
+                Path(gaussian_config["output_dir"]) / "gaussian_1d" / "gaussian_1d_records.csv"
+                if gaussian_config
+                else None
+            )
+        )
+        vision_records = (
+            Path(args.vision_records)
+            if args.vision_records
+            else (
+                Path(vision_config["output_dir"]) / "vision" / "vision_suite_records.csv"
+                if vision_config
+                else None
+            )
+        )
+        for records_path in (gaussian_records, vision_records):
+            if records_path is not None:
+                records.extend(_read_records_csv(records_path))
+        output_path = out_dir / "benchmark_sensitivity_thresholds.pdf"
+        plot_sensitivity_thresholds(records, output_path)
+        print(f"Wrote figure: {output_path}")
 
 
 if __name__ == "__main__":

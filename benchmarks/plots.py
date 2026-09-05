@@ -29,6 +29,8 @@ METHOD_LABELS = {
     "mmd": "MMD",
 }
 
+SENSITIVITY_PVALUE = 0.05
+
 
 def _progressive_linewidth(
     index: int, total: int, max_width: float = 2.6, min_width: float = 1.1
@@ -130,5 +132,121 @@ def plot_method_sweep(
 
     ax.legend(handles=lines, loc="upper center")
     ax.grid(True, alpha=0.2)
+    fig.savefig(output_path, dpi=200, bbox_inches="tight")
+    plt.close(fig)
+
+
+def _interpolate_crossing(
+    severities: np.ndarray,
+    values: np.ndarray,
+    limit: float,
+    crosses_upward: bool,
+) -> float:
+    """Return the first linearly interpolated threshold crossing, or 1.0."""
+    finite = np.isfinite(values)
+    severities = severities[finite]
+    values = values[finite]
+    if len(severities) == 0:
+        return 1.0
+
+    crosses_limit = values >= limit if crosses_upward else values <= limit
+    if crosses_limit[0]:
+        return float(severities[0])
+
+    for index in range(1, len(severities)):
+        if not crosses_limit[index]:
+            continue
+        previous_severity, severity = severities[index - 1 : index + 1]
+        previous_value, value = values[index - 1 : index + 1]
+        if np.isclose(value, previous_value):
+            return float(severity)
+        fraction = (limit - previous_value) / (value - previous_value)
+        return float(previous_severity + fraction * (severity - previous_severity))
+    return 1.0
+
+
+def _condition_label(records: Sequence[dict[str, object]]) -> str:
+    first = records[0]
+    deviation = str(first["deviation"]).replace("_", " ")
+    if "dataset" not in first or not first["dataset"]:
+        return f"Gaussian 1D\n{deviation}"
+    dataset = str(first["dataset"])
+    dataset_names = {"gaussian2x2": "Gaussian 2x2", "mnist": "MNIST", "cifar10": "CIFAR-10"}
+    return f"{dataset_names.get(dataset, dataset)}\n{deviation}"
+
+
+def plot_sensitivity_thresholds(
+    records: Iterable[dict[str, object]], output_path: str | Path
+) -> None:
+    """Plot each metric's severity required to detect every benchmark deviation."""
+    condition_records: dict[tuple[str, str], list[dict[str, object]]] = defaultdict(list)
+    for record in records:
+        dataset = str(record.get("dataset", "gaussian_1d"))
+        condition_records[(dataset, str(record["deviation"]))].append(record)
+
+    if not condition_records:
+        raise ValueError("No benchmark records were supplied for the sensitivity summary")
+
+    conditions = sorted(condition_records)
+    labels = [_condition_label(condition_records[condition]) for condition in conditions]
+    methods = [
+        method
+        for method in METHOD_LABELS
+        if any(method in _group_records(condition_records[condition]) for condition in conditions)
+    ]
+    thresholds: dict[str, list[float]] = {method: [] for method in methods}
+    for condition in conditions:
+        by_method = _group_records(condition_records[condition])
+        for method in methods:
+            if method not in by_method:
+                thresholds[method].append(1.0)
+                continue
+            severities, scores = by_method[method]
+            if not np.any(np.isfinite(scores)):
+                thresholds[method].append(1.0)
+                continue
+            medians = np.nanmedian(scores, axis=1)
+            if method in {"fld", "fid"}:
+                null_scores = scores[np.isclose(severities, 0.0)]
+                if null_scores.size == 0:
+                    threshold = 1.0
+                else:
+                    upper_null_limit = float(np.nanquantile(null_scores, 0.975))
+                    threshold = _interpolate_crossing(
+                        severities, medians, upper_null_limit, crosses_upward=True
+                    )
+            else:
+                threshold = _interpolate_crossing(
+                    severities, medians, SENSITIVITY_PVALUE, crosses_upward=False
+                )
+            thresholds[method].append(threshold)
+
+    positions = np.arange(len(conditions))
+    fig, ax = plt.subplots(figsize=(max(9.0, 1.45 * len(conditions)), 6.0))
+    for method in methods:
+        marker_size = 100 if method == "pted" else 55
+        ax.scatter(
+            positions,
+            thresholds[method],
+            s=marker_size,
+            color=METHOD_COLOURS[method],
+            label=METHOD_LABELS[method],
+            edgecolors="white",
+            linewidths=0.65,
+            zorder=3 if method == "pted" else 2,
+        )
+
+    ax.set_xticks(positions)
+    ax.set_xticklabels(labels, rotation=35, ha="right", rotation_mode="anchor")
+    ax.set_xlim(-0.5, len(conditions) - 0.5)
+    ax.set_ylim(-0.03, 1.03)
+    ax.set_xlabel("Benchmark test")
+    ax.set_ylabel("Detection severity threshold [S]")
+    ax.set_title("Benchmark sensitivity thresholds")
+    ax.grid(axis="y", alpha=0.25)
+    ax.legend(title="Metric", loc="upper center", ncols=len(methods), frameon=False)
+    fig.tight_layout()
+    output_path = Path(output_path)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(output_path, dpi=200, bbox_inches="tight")
     plt.close(fig)
