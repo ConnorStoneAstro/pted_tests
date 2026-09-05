@@ -87,8 +87,8 @@ def run_chunk_sweep(config: dict[str, Any]) -> list[dict[str, Any]]:
                 start = process_time()
                 value = float(
                     pted(
-                        x_t,
-                        y_t,
+                        x,
+                        y,
                         permutations=permutations,
                         chunk_size=int(chunk_size),
                         two_tailed=two_tailed,
