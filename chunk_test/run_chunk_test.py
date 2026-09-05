@@ -45,6 +45,18 @@ def _read_records_csv(path: Path) -> list[dict[str, Any]]:
         return list(csv.DictReader(f))
 
 
+def _json_safe(value: Any) -> Any:
+    if isinstance(value, np.generic):
+        return value.item()
+    if isinstance(value, np.ndarray):
+        return value.tolist()
+    if isinstance(value, dict):
+        return {str(key): _json_safe(item) for key, item in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [_json_safe(item) for item in value]
+    return value
+
+
 def run_chunk_sweep(config: dict[str, Any]) -> list[dict[str, Any]]:
     dataset_name = config["dataset"]
     deviation = config["deviation"]
@@ -140,7 +152,7 @@ def main() -> None:
 
     if args.dry_run:
         print("Dry run configuration")
-        print(json.dumps(config, indent=2))
+        print(json.dumps(_json_safe(config), indent=2))
         return
 
     csv_path = Path(args.records_csv) if args.records_csv else output_dir / "chunk_test_records.csv"
@@ -151,7 +163,7 @@ def main() -> None:
         records = run_chunk_sweep(config)
         _write_records_csv(records, csv_path)
         with (output_dir / "run_config.json").open("w", encoding="utf-8") as f:
-            json.dump(config, f, indent=2)
+            json.dump(_json_safe(config), f, indent=2)
         print(f"Wrote records: {csv_path}")
 
     _plot_outputs(records, config, output_dir)
