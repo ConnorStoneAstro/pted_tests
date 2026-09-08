@@ -223,9 +223,9 @@ def plot_sensitivity_thresholds(
 
     positions = np.arange(len(conditions))
     N = np.argsort(thresholds["pted"])
-    fig, ax = plt.subplots(figsize=(max(8.0, 1.35 * len(conditions)), 6.0))
+    fig, ax = plt.subplots(figsize=(max(8.0, 1.05 * len(conditions)), 6.0))
     for i, method in enumerate(methods):
-        marker_size = 300 - 50 * i
+        marker_size = 400 - 70 * i
         ax.scatter(
             positions,
             np.array(thresholds[method])[N],
@@ -248,13 +248,13 @@ def plot_sensitivity_thresholds(
 
     ax.set_xticks(positions)
     ax.set_xticklabels(np.array(labels)[N], rotation=35, ha="right", rotation_mode="anchor")
-    ax.set_xlim(-0.5, len(conditions) - 0.5)
+    ax.set_xlim(-0.2, len(conditions) - 0.8)
     ax.set_ylim(0.0, 1.03)
     # ax.set_xlabel("Benchmark test")
     ax.set_ylabel("Detection severity threshold [S, lower is better]")
     ax.set_title("Benchmark sensitivity thresholds")
     ax.grid(axis="y", alpha=0.25)
-    # ax.legend(title="Metric", loc="upper center", ncols=len(methods), frameon=False)
+    ax.legend(loc="lower right")
     fig.tight_layout()
     output_path = Path(output_path)
     output_path.parent.mkdir(parents=True, exist_ok=True)
