@@ -252,7 +252,7 @@ def plot_sensitivity_thresholds(
     ax.set_ylim(0.0, 1.03)
     # ax.set_xlabel("Benchmark test")
     ax.set_ylabel("Detection severity threshold [S, lower is better]")
-    # ax.set_title("Benchmark sensitivity thresholds")
+    ax.set_title("Two-sample test comparison benchmark (95%% sensitivity)")
     ax.grid(axis="y", alpha=0.25)
     ax.legend(loc="lower right")
     fig.tight_layout()
