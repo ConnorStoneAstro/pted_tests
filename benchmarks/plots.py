@@ -225,7 +225,7 @@ def plot_sensitivity_thresholds(
     N = np.argsort(thresholds["pted"])
     fig, ax = plt.subplots(figsize=(max(8.0, 1.35 * len(conditions)), 6.0))
     for i, method in enumerate(methods):
-        marker_size = 200 - 30 * i
+        marker_size = 300 - 50 * i
         ax.scatter(
             positions,
             np.array(thresholds[method])[N],
@@ -243,6 +243,7 @@ def plot_sensitivity_thresholds(
                 color=METHOD_COLOURS[method],
                 linewidth=2.0,
                 alpha=0.5,
+                zorder=0,
             )
 
     ax.set_xticks(positions)
