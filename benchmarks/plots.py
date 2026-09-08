@@ -223,7 +223,7 @@ def plot_sensitivity_thresholds(
 
     positions = np.arange(len(conditions))
     N = np.argsort(thresholds["pted"])
-    fig, ax = plt.subplots(figsize=(max(8.0, 1.05 * len(conditions)), 6.0))
+    fig, ax = plt.subplots(figsize=(max(8.0, 0.8 * len(conditions)), 4.0))
     for i, method in enumerate(methods):
         marker_size = 400 - 70 * i
         ax.scatter(
