@@ -233,7 +233,7 @@ def plot_sensitivity_thresholds(
             color=METHOD_COLOURS[method],
             label=METHOD_LABELS[method],
             edgecolors="white",
-            linewidths=0.65,
+            linewidths=0.2,
             # zorder=3 if method == "pted" else 2,
         )
 
