@@ -131,7 +131,7 @@ def run_coverage_sweep(args: argparse.Namespace) -> dict[str, Any]:
 
 def build_arg_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Run a Gaussian coverage sweep experiment")
-    parser.add_argument("--output-dir", default="coverage_test/results/coverage_test")
+    parser.add_argument("--output-dir", default="coverage_test/results/coverage_test_newpted")
     parser.add_argument("--dry-run", action="store_true", help="Print configuration and exit")
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--n-sims", type=int, default=64)

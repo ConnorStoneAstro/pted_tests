@@ -24,7 +24,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--output-dir",
-        default="early_stopping_smooth_mixture/results/two_moons_sigma_sweep",
+        default="early_stopping_smooth_mixture/results/two_moons_sigma_sweep_newpted",
     )
     parser.add_argument("--dry-run", action="store_true", help="Print configuration and exit")
     parser.add_argument("--seed", type=int, default=0)

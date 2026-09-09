@@ -21,7 +21,7 @@ if __package__ in (None, ""):
 
 def build_arg_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Plot Gaussian coverage-sweep outputs")
-    parser.add_argument("--output-dir", default="coverage_test/results/coverage_test")
+    parser.add_argument("--output-dir", default="coverage_test/results/coverage_test_newpted")
     parser.add_argument("--gif-name", default="coverage_sweep_animation.gif")
     parser.add_argument("--gif-fps", type=float, default=6.0)
     parser.add_argument("--gif-loop", type=int, default=0)

@@ -54,7 +54,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--output-dir",
-        default="early_stopping_smooth_mixture/results/two_moons_sigma_sweep",
+        default="early_stopping_smooth_mixture/results/two_moons_sigma_sweep_newpted",
     )
     parser.add_argument("--plot-frames", action="store_true")
     parser.add_argument("--make-gif", action="store_true")

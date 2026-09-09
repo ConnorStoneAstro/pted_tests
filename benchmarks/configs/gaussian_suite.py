@@ -3,7 +3,7 @@ import numpy as np
 DEVIATION_KINDS = ["mean_shift", "scale_shift", "bimodal", "skew", "contamination"]
 
 CONFIG = {
-    "output_dir": "benchmarks/results/gaussian_suite_onetail",
+    "output_dir": "benchmarks/results/gaussian_suite_newpted",
     "permutations": 512,
     "seeds": list(range(64)),
     "n_samples": 100,
