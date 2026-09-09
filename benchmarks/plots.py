@@ -110,8 +110,15 @@ def plot_method_sweep(
             useax = subax
         else:
             useax = ax
+        is_pted = method == "pted"
         useax.fill_between(
-            x_values, lowers, uppers, alpha=0.05, color=METHOD_COLOURS[method], linewidth=0
+            x_values,
+            lowers,
+            uppers,
+            alpha=0.05,
+            color=METHOD_COLOURS[method],
+            linewidth=0,
+            zorder=1.5 if is_pted else 1,
         )
         (line,) = useax.plot(
             x_values,
@@ -119,6 +126,7 @@ def plot_method_sweep(
             label=METHOD_LABELS[method],
             linewidth=linewidth,
             color=METHOD_COLOURS[method],
+            zorder=4 if is_pted else 2,
         )
         lines.append(line)
 
@@ -234,7 +242,7 @@ def plot_sensitivity_thresholds(
             label=METHOD_LABELS[method],
             edgecolors="white",
             linewidths=0.0,
-            # zorder=3 if method == "pted" else 2,
+            zorder=4 if method == "pted" else 2,
         )
         if method == "pted":
             ax.plot(
@@ -243,7 +251,7 @@ def plot_sensitivity_thresholds(
                 color=METHOD_COLOURS[method],
                 linewidth=2.0,
                 alpha=0.5,
-                zorder=0,
+                zorder=3,
             )
 
     ax.set_xticks(positions)

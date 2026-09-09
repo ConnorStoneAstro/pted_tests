@@ -18,7 +18,7 @@ if __package__ in (None, ""):
 from benchmarks.datasets.vision import generate_vision_problem, load_vision_dataset
 from benchmarks.metrics import DEVICE, _prepare_samples
 from benchmarks.utils import _grab_config
-from chunk_test.plot_chunk_test import plot_chunk_runtime, plot_chunk_sweep
+from landmark_test.plot_landmark_test import plot_landmark_runtime, plot_landmark_sweep
 
 DATASET_NAMES = {
     "mnist": "MNIST",
@@ -57,7 +57,7 @@ def _json_safe(value: Any) -> Any:
     return value
 
 
-def run_chunk_sweep(config: dict[str, Any]) -> list[dict[str, Any]]:
+def run_landmark_sweep(config: dict[str, Any]) -> list[dict[str, Any]]:
     dataset_name = config["dataset"]
     deviation = config["deviation"]
     n_samples = int(config["n_samples"])
@@ -79,10 +79,8 @@ def run_chunk_sweep(config: dict[str, Any]) -> list[dict[str, Any]]:
                 rng=rng,
             )
             x, y = _prepare_samples(problem.x, problem.y)
-            x_t = torch.tensor(x, device=DEVICE)
-            y_t = torch.tensor(y, device=DEVICE)
 
-            for chunk_size in config["chunk_sizes"]:
+            for n_landmarks in config["n_landmarks"]:
                 torch.manual_seed(seed)
                 start = process_time()
                 value = float(
@@ -90,7 +88,7 @@ def run_chunk_sweep(config: dict[str, Any]) -> list[dict[str, Any]]:
                         x,
                         y,
                         permutations=permutations,
-                        chunk_size=int(chunk_size),
+                        n_landmarks=int(n_landmarks),
                         two_tailed=two_tailed,
                     )
                 )
@@ -102,7 +100,7 @@ def run_chunk_sweep(config: dict[str, Any]) -> list[dict[str, Any]]:
                         "deviation": deviation,
                         "severity": float(severity),
                         "seed": int(seed),
-                        "chunk_size": int(chunk_size),
+                        "n_landmarks": int(n_landmarks),
                         "n_samples": n_samples,
                         "score": value,
                         "runtime": runtime,
@@ -115,26 +113,26 @@ def _plot_outputs(records: list[dict[str, Any]], config: dict[str, Any], out_dir
     dataset_name = str(records[0]["dataset"])
     deviation = str(records[0]["deviation"])
     title = (
-        f"PTED chunk size sweep {DATASET_NAMES.get(dataset_name, dataset_name)}: "
+        f"PTED landmark sweep {DATASET_NAMES.get(dataset_name, dataset_name)}: "
         f"{DEVIATION_TITLES.get(deviation, deviation)}"
     )
-    plot_chunk_sweep(
+    plot_landmark_sweep(
         records,
-        output_path=out_dir / f"chunk_{dataset_name}_{deviation}_score.pdf",
+        output_path=out_dir / f"landmark_{dataset_name}_{deviation}_score.pdf",
         title=title,
     )
-    plot_chunk_runtime(
+    plot_landmark_runtime(
         records,
-        output_path=out_dir / f"chunk_{dataset_name}_{deviation}_runtime.pdf",
-        title="PTED runtime vs chunk size",
+        output_path=out_dir / f"landmark_{dataset_name}_{deviation}_runtime.pdf",
+        title="PTED runtime vs number of landmarks",
     )
 
 
 def build_arg_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="Sweep the PTED chunk_size parameter on a vision benchmark problem"
+        description="Sweep the PTED n_landmarks parameter on a vision benchmark problem"
     )
-    parser.add_argument("--config", default="chunk_test/config.py", help="Configuration file path")
+    parser.add_argument("--config", default="landmark_test/config.py", help="Configuration file path")
     parser.add_argument("--dry-run", action="store_true", help="Print configuration and exit")
     parser.add_argument(
         "--plot-only",
@@ -155,12 +153,12 @@ def main() -> None:
         print(json.dumps(_json_safe(config), indent=2))
         return
 
-    csv_path = Path(args.records_csv) if args.records_csv else output_dir / "chunk_test_records.csv"
+    csv_path = Path(args.records_csv) if args.records_csv else output_dir / "landmark_test_records.csv"
 
     if args.plot_only:
         records = _read_records_csv(csv_path)
     else:
-        records = run_chunk_sweep(config)
+        records = run_landmark_sweep(config)
         _write_records_csv(records, csv_path)
         with (output_dir / "run_config.json").open("w", encoding="utf-8") as f:
             json.dump(_json_safe(config), f, indent=2)

@@ -177,6 +177,7 @@ def _plot_frame(
 
         use_ax = ax_p if method in P_VALUE_METHODS else extra_axes[method]
         color = METHOD_COLORS.get(method, None)
+        is_pted = method == "pted"
         (line,) = use_ax.plot(
             x_vals[mask],
             y_vals[mask],
@@ -185,6 +186,7 @@ def _plot_frame(
             linewidth=2.4,
             alpha=0.95,
             color=color,
+            zorder=4 if is_pted else 2,
         )
         lines.append(line)
         labels.append(METHOD_LABELS.get(method, method.upper()))
