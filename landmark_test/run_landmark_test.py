@@ -79,14 +79,16 @@ def run_landmark_sweep(config: dict[str, Any]) -> list[dict[str, Any]]:
                 rng=rng,
             )
             x, y = _prepare_samples(problem.x, problem.y)
+            x_t = torch.tensor(x, dtype=torch.float32, device=DEVICE)
+            y_t = torch.tensor(y, dtype=torch.float32, device=DEVICE)
 
             for n_landmarks in config["n_landmarks"]:
                 torch.manual_seed(seed)
                 start = process_time()
                 value = float(
                     pted(
-                        x,
-                        y,
+                        x_t,
+                        y_t,
                         permutations=permutations,
                         n_landmarks=int(n_landmarks),
                         two_tailed=two_tailed,
@@ -132,7 +134,9 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="Sweep the PTED n_landmarks parameter on a vision benchmark problem"
     )
-    parser.add_argument("--config", default="landmark_test/config.py", help="Configuration file path")
+    parser.add_argument(
+        "--config", default="landmark_test/config.py", help="Configuration file path"
+    )
     parser.add_argument("--dry-run", action="store_true", help="Print configuration and exit")
     parser.add_argument(
         "--plot-only",
@@ -153,7 +157,9 @@ def main() -> None:
         print(json.dumps(_json_safe(config), indent=2))
         return
 
-    csv_path = Path(args.records_csv) if args.records_csv else output_dir / "landmark_test_records.csv"
+    csv_path = (
+        Path(args.records_csv) if args.records_csv else output_dir / "landmark_test_records.csv"
+    )
 
     if args.plot_only:
         records = _read_records_csv(csv_path)
