@@ -16,12 +16,10 @@ if __package__ in (None, ""):
     sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from benchmarks.metrics import metric_sweep
-
-
-def sample_data_covariance(rng: np.random.Generator) -> np.ndarray:
-    sigma = rng.uniform(0.5, 2.0, size=2)
-    cov = rng.uniform(-1, 1) * np.prod(sigma)
-    return np.array([[sigma[0] ** 2, cov], [cov, sigma[1] ** 2]]).astype(np.float64)
+from coverage_test.gaussian_posteriors import (
+    sample_data_covariance as sample_data_covariance,
+    simulate_posteriors,
+)
 
 
 def build_sigma_values(sigma_min: float, sigma_max: float, n_sigmas: int) -> np.ndarray:
@@ -33,27 +31,9 @@ def run_coverage_sweep(args: argparse.Namespace) -> dict[str, Any]:
     output_dir.mkdir(parents=True, exist_ok=True)
 
     rng = np.random.default_rng(args.seed)
-    true_param_cov = np.array([[10.0, 0.0], [0.0, 10.0]], dtype=np.float64)
-
-    ground_truth = rng.multivariate_normal(mean=np.zeros(2), cov=true_param_cov, size=args.n_sims)
-
-    data_values = []
-    data_cov = []
-    for sim_idx in range(args.n_sims):
-        data_cov.append(sample_data_covariance(rng))
-        data_values.append(
-            rng.multivariate_normal(mean=ground_truth[sim_idx], cov=data_cov[sim_idx])
-        )
-    data_cov = np.stack(data_cov, axis=0)
-    data_values = np.stack(data_values, axis=0)  # (Nsim, 2)
-
-    posterior_samples = np.stack(
-        [
-            rng.multivariate_normal(mean=dv, cov=dc, size=args.n_posterior_samples)
-            for dv, dc in zip(data_values, data_cov)
-        ],
-        axis=1,
-    )  # (Nsamp, Nsim, 2)
+    ground_truth, data_values, data_cov, posterior_samples = simulate_posteriors(
+        rng, args.n_sims, args.n_posterior_samples
+    )
 
     sigma_values = build_sigma_values(args.sigma_min, args.sigma_max, args.n_sigmas)
     pvalues_pted = np.zeros(len(sigma_values), dtype=np.float64)

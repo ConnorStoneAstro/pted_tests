@@ -40,7 +40,7 @@ bash run_all_dry_runs.sh
 | Folder | Purpose | Main entry points |
 | --- | --- | --- |
 | `benchmarks/` | Two-sample benchmark sweeps on synthetic Gaussian and image-like problems. | `python benchmarks/run_gaussian_suite.py`, `python benchmarks/run_vision_suite.py` |
-| `coverage_test/` | Posterior coverage sensitivity sweep for Gaussian simulations. | `python coverage_test/run_coverage_test.py`, `python coverage_test/plot_coverage_test.py` |
+| `coverage_test/` | Gaussian posterior coverage sweeps, including bootstrap-calibrated MIRA. | `python coverage_test/run_coverage_test.py`, `python coverage_test/plot_coverage_test.py`, `python coverage_test/run_bootstrap_coverage_test.py`, `python coverage_test/plot_bootstrap_coverage_test.py` |
 | `early_stopping_smooth_mixture/` | Smooth sigma sweep for a two-moons Gaussian mixture generator. | `python early_stopping_smooth_mixture/run_sigma_sweep.py`, `python early_stopping_smooth_mixture/plot_sigma_sweep.py` |
 
 Each subfolder has its own README with experiment details, configuration knobs, and expected outputs.

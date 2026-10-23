@@ -2,6 +2,80 @@
 
 This directory contains a Gaussian posterior coverage sweep. It tests whether posterior samples are calibrated against known ground-truth parameters as the posterior covariance is scaled across a range of sigma values.
 
+## Bootstrap MIRA Coverage Experiment
+
+The separate [bootstrap runner](run_bootstrap_coverage_test.py) uses the same
+Gaussian simulation setup as the original experiment, but evaluates only PTED
+and MIRA. Defaults are 64 simulations, 128 posterior samples per simulation,
+512 PTED permutations / MIRA Monte Carlo runs, and 16 linearly spaced sigma
+scales from 0.5 through 2.0 in steps of 0.1.
+
+At each scale it evaluates the original MIRA score and 256 bootstrap datasets.
+Each bootstrap independently draws 128 sample indices with replacement for
+**each posterior**, preserving whole 2D draws and keeping the ground truths
+and generating posterior centers fixed. It does not resample simulations or
+recenter bootstrapped draws. Every MIRA evaluation uses a fresh reproducible
+Torch seed; the bootstrap score spread therefore includes MIRA Monte Carlo
+noise as well as posterior resampling uncertainty.
+Simulation generation, bootstrap indices, MIRA seeds, and PTED permutations
+use separately seeded streams so the full run is reproducible.
+
+The [bootstrap plotter](plot_bootstrap_coverage_test.py) shows PTED p-values on
+the left axis and raw MIRA scores on the right. The right axis also shows the
+2/3 reference and an adaptive shaded band `2/3 +/- std`, using the sample
+standard deviation (`ddof=1`) of that scale's 256 bootstrap scores. This is
+conditional uncertainty for the fixed simulations, not a guaranteed
+confidence interval or an estimate of variability across new simulations.
+No analytic MIRA variance window is used.
+
+Run from the repository root:
+
+```bash
+python coverage_test/run_bootstrap_coverage_test.py --dry-run
+python coverage_test/run_bootstrap_coverage_test.py
+python coverage_test/plot_bootstrap_coverage_test.py
+```
+
+Results are isolated in `coverage_test/results/bootstrap_coverage_test`.
+The full default run requires 4,112 MIRA evaluations (each with 512 internal
+runs), plus 16 PTED evaluations. A small end-to-end check is:
+
+```bash
+python coverage_test/run_bootstrap_coverage_test.py \
+  --output-dir coverage_test/results/bootstrap_quick \
+  --n-sims 8 --n-posterior-samples 16 --permutations 8 \
+  --n-bootstraps 4 --sigma-min 0.5 --sigma-max 2.0 --sigma-step 0.5
+python coverage_test/plot_bootstrap_coverage_test.py \
+  --output-dir coverage_test/results/bootstrap_quick
+```
+
+The runner accepts `--seed`, `--n-sims`, `--n-posterior-samples`,
+`--permutations`, `--n-bootstraps`, `--sigma-min`, `--sigma-max`,
+`--sigma-step`, `--output-dir`, and `--dry-run`. The sigma range must be an
+integer multiple of the positive step. Counts must be at least two.
+
+Saved artifacts include:
+
+- `run_config.json`: configuration, resolved scales, and calibration conventions
+- `sigma_values.npy`, `pvalues_pted.npy`, `scores_mira.npy`: one value per scale
+  (MIRA scores are not p-values)
+- `bootstrap_scores_mira.npy`: shape `(n_sigmas, n_bootstraps)`
+- `bootstrap_std_mira.npy`: per-scale sample standard deviation, not standard error
+- `mira_seeds.npy`: shape `(n_sigmas, n_bootstraps + 1)`; the first column seeds
+  the original score and the remaining columns seed bootstrap evaluations
+- `ground_truth.npy`, `data_values.npy`, `data_cov.npy`, `posterior_samples.npy`:
+  the same simulation artifacts as the original sweep
+- `pit_plot_sigma_*.pdf`: per-scale PTED PIT plots
+
+The plotter adds `bootstrap_coverage_sweep_summary.pdf` and a PNG counterpart.
+The original runner and plotter retain their existing experiment behavior.
+
+Run the focused regression tests with:
+
+```bash
+python -m unittest coverage_test.test_bootstrap_coverage_test -v
+```
+
 ## How The Test Works
 
 `run_coverage_test.py` simulates `n_sims` independent Gaussian inference problems. For each problem it draws:

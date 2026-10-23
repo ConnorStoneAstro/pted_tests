@@ -15,6 +15,8 @@ python benchmarks/run_vision_suite.py
 echo "Running Gaussian posterior coverage sweep and plots..."
 python coverage_test/run_coverage_test.py
 python coverage_test/plot_coverage_test.py
+python coverage_test/run_bootstrap_coverage_test.py
+python coverage_test/plot_bootstrap_coverage_test.py
 
 # Smooth two-moons mixture sigma sweep and animation.
 echo "Running smooth two-moons mixture sigma sweep and animation..."
