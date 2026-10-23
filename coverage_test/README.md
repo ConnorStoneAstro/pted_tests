@@ -76,6 +76,70 @@ Run the focused regression tests with:
 python -m unittest coverage_test.test_bootstrap_coverage_test -v
 ```
 
+## Independent MIRA Null Reruns
+
+The [null runner](run_mira_null_test.py) tests whether the within-posterior
+bootstrap spread predicts MIRA variability across newly generated systems.
+It uses **MIRA only**, at sigma **1.0**, with 64 simulations and 128 posterior
+draws each. It first generates one independent reference system and evaluates
+its MIRA score and 256 separately bootstrapped versions. It then generates
+256 additional independent systems, each with new ground truths, covariance
+matrices, observations, and posterior samples. The reference is **not** one
+of these reruns. Every evaluation uses 512 internal MIRA runs and a fresh
+reproducible seed.
+
+```bash
+python coverage_test/run_mira_null_test.py --dry-run
+python coverage_test/run_mira_null_test.py
+python coverage_test/plot_mira_null_test.py
+```
+
+The default output directory is `coverage_test/results/mira_null_test`.
+The experiment requires **513 MIRA evaluations**, rather than bootstrapping
+every rerun. All count settings can be overridden with `--n-sims`,
+`--n-posterior-samples`, `--n-repeats`, `--n-bootstraps`, and `--mira-runs`.
+The runner also accepts `--seed`, `--output-dir`, and `--dry-run`.
+
+The [null plotter](plot_mira_null_test.py) writes a four-panel PDF/PNG with:
+
+- a histogram of independent null scores, the reference bootstrap scores
+  **recentered by subtracting their mean and adding 2/3**, and the Gaussian
+  prediction `Normal(2/3, bootstrap_std)`
+- a Q-Q comparison of `(MIRA - 2/3) / bootstrap_std` to a standard normal,
+  without fitting away empirical bias or rescaling the observed spread
+- empirical CDFs versus the reference prediction
+- observed fractions inside `2/3 +/- {1, 2, 3} * bootstrap_std`, compared with
+  Gaussian expectations (approximately 68.27%, 95.45%, and 99.73%)
+
+Normality is a hypothesis, not implied by the variance. The bootstrap estimates
+conditional uncertainty for **one** fixed system, whereas these reruns include
+between-system variation. A mismatch is a meaningful possible result, not an
+error to correct by fitting the empirical null variance. The reference variance
+itself is uncertain, and 256 reruns cannot resolve extreme tails accurately.
+
+Saved outputs include `scores_mira.npy` (rerun scores),
+`bootstrap_scores_mira.npy` (raw, unrecentered reference bootstrap scores),
+`reference_score_mira.npy`, `bootstrap_std_mira.npy` (`ddof=1`), and
+`z_scores_mira.npy`. `null_summary.json` records bias, empirical and bootstrap
+standard deviations, their variance ratio, and coverage counts/fractions.
+`run_config.json` records the experiment conventions. `mira_seeds.npy` stores
+seeds in evaluation order: reference, bootstrap evaluations, then reruns.
+The reference system is saved as `reference_{ground_truth,data_values,data_cov,posterior_samples}.npy`;
+the unprefixed counterparts store all rerun systems with a leading repeat axis.
+The plotter writes `mira_null_summary.pdf` and `mira_null_summary.png`.
+
+A quick end-to-end check:
+
+```bash
+python coverage_test/run_mira_null_test.py \
+  --output-dir coverage_test/results/mira_null_quick \
+  --n-sims 8 --n-posterior-samples 16 \
+  --n-repeats 8 --n-bootstraps 8 --mira-runs 8
+python coverage_test/plot_mira_null_test.py \
+  --output-dir coverage_test/results/mira_null_quick
+python -m unittest coverage_test.test_mira_null_test -v
+```
+
 ## How The Test Works
 
 `run_coverage_test.py` simulates `n_sims` independent Gaussian inference problems. For each problem it draws:

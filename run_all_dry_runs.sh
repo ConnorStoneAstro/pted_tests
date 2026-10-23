@@ -14,6 +14,7 @@ python benchmarks/run_vision_suite.py --dry-run
 echo "Running Gaussian posterior coverage dry run..."
 python coverage_test/run_coverage_test.py --dry-run
 python coverage_test/run_bootstrap_coverage_test.py --dry-run
+python coverage_test/run_mira_null_test.py --dry-run
 
 # Smooth two-moons mixture dry run.
 echo "Running smooth two-moons mixture dry run..."
